@@ -1126,8 +1126,9 @@
 
           <div class="card">
             <div class="section-title">
-              <span>Active Monitored Shipments (Synced with "Containers" Sheet Tab)</span>
-              <div style="display: flex; gap: 8px;">
+              <span id="trackingTableTitle">Active Monitored Shipments (Synced with "Containers" Sheet Tab)</span>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <button class="btn btn-subtle" id="showAllContainersBtn" style="display: none; font-size: 0.8rem;" onclick="clearContainerSearchFilter()">Show All Shipments (<span id="allContainersCount">0</span>)</button>
                 <select id="trackFilterStatus" onchange="renderContainers()" style="padding: 5px 10px; font-size: 0.8rem;">
                   <option value="ALL">All Statuses</option>
                   <option value="Delayed">Delayed / Alert Only</option>
@@ -1695,6 +1696,8 @@
     }
 
     // ==================== MULTI-CARRIER TRACKING ====================
+    let activeContainerIdsFilter = null; // null = show all; Set = show only searched ID(s)
+
     function detectCarrier(code) {
       const clean = code.trim().toUpperCase();
       if (clean.length < 4) return null;
@@ -1712,6 +1715,13 @@
       }
     }
 
+    function clearContainerSearchFilter() {
+      activeContainerIdsFilter = null;
+      document.getElementById('trackFilterStatus').value = 'ALL';
+      document.getElementById('timelineDrawer').style.display = 'none';
+      renderContainers();
+    }
+
     function addSingleContainer() {
       const raw = document.getElementById('singleContainerInput').value.trim().toUpperCase();
       if (!raw || raw.length < 7) {
@@ -1719,6 +1729,10 @@
         return;
       }
       insertContainerRecord(raw);
+      activeContainerIdsFilter = new Set([raw]);
+      document.getElementById('trackFilterStatus').value = 'ALL';
+      renderContainers();
+      showTimeline(raw);
       document.getElementById('singleContainerInput').value = '';
       document.getElementById('carrierDetectHint').textContent = '';
     }
@@ -1731,6 +1745,9 @@
         return;
       }
       items.forEach(code => insertContainerRecord(code));
+      activeContainerIdsFilter = new Set(items);
+      document.getElementById('trackFilterStatus').value = 'ALL';
+      renderContainers();
       document.getElementById('bulkContainerInput').value = '';
     }
 
@@ -1746,7 +1763,10 @@
           return;
         }
         tokens.forEach(code => insertContainerRecord(code));
-        alert(`Imported ${tokens.length} containers from CSV.`);
+        activeContainerIdsFilter = new Set(tokens);
+        document.getElementById('trackFilterStatus').value = 'ALL';
+        renderContainers();
+        alert(`Showing ${tokens.length} imported containers from CSV.`);
       };
       reader.readAsText(file);
     }
@@ -1775,7 +1795,6 @@
         ]
       });
 
-      renderContainers();
       updateDashboardContainerKPIs();
       postToGas({
         action: 'trackContainer',
@@ -1787,7 +1806,22 @@
 
     function renderContainers() {
       const filter = document.getElementById('trackFilterStatus').value;
-      const list = containersData.filter(c => filter === 'ALL' || c.status === filter);
+      const showAllBtn = document.getElementById('showAllContainersBtn');
+      const titleEl = document.getElementById('trackingTableTitle');
+
+      let list = containersData;
+      if (activeContainerIdsFilter && activeContainerIdsFilter.size > 0) {
+        list = list.filter(c => activeContainerIdsFilter.has(c.id));
+        const idsLabel = Array.from(activeContainerIdsFilter).join(', ');
+        titleEl.textContent = `Showing Searched Shipment: ${idsLabel}`;
+        document.getElementById('allContainersCount').textContent = containersData.length;
+        showAllBtn.style.display = 'inline-flex';
+      } else {
+        titleEl.textContent = 'Active Monitored Shipments (Synced with "Containers" Sheet Tab)';
+        showAllBtn.style.display = 'none';
+      }
+
+      list = list.filter(c => filter === 'ALL' || c.status === filter);
 
       const tbody = document.getElementById('containerTableBody');
       tbody.innerHTML = list.map(c => {
