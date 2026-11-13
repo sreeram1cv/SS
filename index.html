@@ -1740,8 +1740,7 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         const text = e.target.result;
-        const tokens = text.split(/[
-,;]+/).map(t => t.trim().toUpperCase()).filter(t => /^[A-Z]{4}\d{6,10}$/.test(t));
+        const tokens = text.split(/[\r\n,;]+/).map(t => t.trim().toUpperCase()).filter(t => /^[A-Z]{4}\d{6,10}$/.test(t));
         if (!tokens.length) {
           alert('No valid ISO container numbers (4 letters + 7-10 digits) found in CSV.');
           return;
