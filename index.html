@@ -1103,7 +1103,7 @@
               <div>
                 <label>Track Single Container / Bill of Lading (Auto-Detects Carrier via BIC Prefix)</label>
                 <div style="display: flex; gap: 8px; margin-top: 5px;">
-                  <input type="text" id="singleContainerInput" placeholder="e.g., COSU6326932890, MAEU9182734, MSCU8841209" style="flex: 1;" onkeyup="previewCarrierDetect()" />
+                  <input type="text" id="singleContainerInput" placeholder="e.g., COSU6326932890, MAEU9182734, MSCU8841209" style="flex: 1;" onkeyup="previewCarrierDetect()" onkeydown="if(event.key==='Enter'){event.preventDefault();addSingleContainer();}" />
                   <button class="btn btn-primary" onclick="addSingleContainer()">Track Shipment</button>
                 </div>
                 <div id="carrierDetectHint" style="font-size: 0.78rem; color: var(--ms-green); font-weight: 600; margin-top: 5px; min-height: 18px;"></div>
@@ -1112,7 +1112,7 @@
               <div>
                 <label>Bulk Upload (Paste Comma/Line-Separated Container #s or Upload CSV)</label>
                 <div style="display: flex; gap: 8px; margin-top: 5px;">
-                  <input type="text" id="bulkContainerInput" placeholder="e.g., HLCU4412098, ONEU7731204, EGLV5521908" style="flex: 1;" />
+                  <input type="text" id="bulkContainerInput" placeholder="e.g., HLCU4412098, ONEU7731204, EGLV5521908" style="flex: 1;" onkeydown="if(event.key==='Enter'){event.preventDefault();addBulkContainers();}" />
                   <button class="btn btn-outline" onclick="addBulkContainers()">Bulk Add</button>
                   <label class="btn btn-outline" style="cursor: pointer; margin: 0;">
                     CSV
@@ -1735,6 +1735,7 @@
       showTimeline(raw);
       document.getElementById('singleContainerInput').value = '';
       document.getElementById('carrierDetectHint').textContent = '';
+      document.getElementById('trackingTableTitle').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function addBulkContainers() {
@@ -1772,7 +1773,7 @@
     }
 
     function insertContainerRecord(code) {
-      if (containersData.some(c => c.id === code)) return;
+      if (containersData.some(c => String(c.id).trim().toUpperCase() === code)) return;
       const carrier = detectCarrier(code);
       const nowStr = new Date().toISOString().slice(0, 16).replace('T', ' ') + ' IST';
 
@@ -1811,7 +1812,7 @@
 
       let list = containersData;
       if (activeContainerIdsFilter && activeContainerIdsFilter.size > 0) {
-        list = list.filter(c => activeContainerIdsFilter.has(c.id));
+        list = list.filter(c => activeContainerIdsFilter.has(String(c.id).trim().toUpperCase()));
         const idsLabel = Array.from(activeContainerIdsFilter).join(', ');
         titleEl.textContent = `Showing Searched Shipment: ${idsLabel}`;
         document.getElementById('allContainersCount').textContent = containersData.length;
@@ -1847,7 +1848,8 @@
     }
 
     function showTimeline(containerId) {
-      const c = containersData.find(item => item.id === containerId);
+      const cleanId = String(containerId || '').trim().toUpperCase();
+      const c = containersData.find(item => String(item.id).trim().toUpperCase() === cleanId);
       if (!c) return;
       const drawer = document.getElementById('timelineDrawer');
       document.getElementById('timelineTitle').textContent = `Shipment Timeline: ${c.id} (${c.carrier} — ${c.vessel})`;
@@ -1922,9 +1924,9 @@
           if (data.containers && data.containers.length) {
             const evList = data.events || [];
             containersData = data.containers.map(c => {
-              const cid = c['Container Number'];
+              const cid = String(c['Container Number'] || '').trim().toUpperCase();
               const matchedEvents = evList
-                .filter(ev => ev['Container Number'] === cid)
+                .filter(ev => String(ev['Container Number'] || '').trim().toUpperCase() === cid)
                 .map(ev => ({
                   status: String(ev['Event Type']).toLowerCase().includes('delay') ? 'alert' : 'completed',
                   title: ev['Event Type'],
