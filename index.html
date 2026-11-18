@@ -3,16 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CableSource — Dynamics 365 Sourcing &amp; Visibility</title>
+  <title>CableSource</title>
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
   <style>
     :root {
       --ms-blue: #0078d4;
       --ms-blue-hover: #106ebe;
-      --ms-blue-pressed: #005a9e;
       --ms-blue-light: #eff6fc;
       --ms-blue-border: #c7e0f4;
-      --ms-header-bg: #0078d4;
       --ms-canvas: #faf9f8;
       --ms-rail-bg: #f3f2f1;
       --ms-surface: #ffffff;
@@ -20,111 +18,79 @@
       --ms-border-strong: #c8c6c4;
       --ms-text: #323130;
       --ms-text-secondary: #605e5c;
-      --ms-text-muted: #8a8886;
       --ms-green: #107c41;
       --ms-green-bg: #dff6dd;
       --ms-amber: #d83b01;
       --ms-amber-bg: #fff4ce;
       --ms-red: #a4262c;
       --ms-red-bg: #fde7e9;
-      --ms-teal: #008272;
-      --ms-shadow-card: 0 1.6px 3.6px 0 rgba(0,0,0,0.132), 0 0.3px 0.9px 0 rgba(0,0,0,0.108);
-      --ms-shadow-flyout: 0 6.4px 14.4px 0 rgba(0,0,0,0.132), 0 1.2px 3.6px 0 rgba(0,0,0,0.108);
-      --radius: 4px;
+      --ms-shadow: 0 1.6px 3.6px rgba(0,0,0,0.11), 0 0.3px 0.9px rgba(0,0,0,0.09);
+      --ms-shadow-hover: 0 6px 14px rgba(0,0,0,0.13);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
     }
 
     body {
-      background-color: var(--ms-canvas);
+      background: var(--ms-canvas);
       color: var(--ms-text);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow-x: hidden;
     }
 
-    /* Microsoft 365 Top App Suite Bar */
+    /* Top Bar */
     .ms-suite-bar {
-      height: 48px;
-      background-color: var(--ms-header-bg);
-      color: #ffffff;
+      height: 46px;
+      background: var(--ms-blue);
+      color: #fff;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
+      padding: 0 18px;
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 0; left: 0; right: 0;
       z-index: 200;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
     }
 
     .ms-suite-left {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
+      cursor: pointer;
     }
 
     .ms-waffle {
-      width: 32px;
-      height: 32px;
+      width: 28px; height: 28px;
       display: grid;
       grid-template-columns: repeat(3, 4px);
       gap: 3px;
       place-content: center;
-      border-radius: 2px;
-      cursor: pointer;
-    }
-
-    .ms-waffle:hover {
-      background: rgba(255,255,255,0.15);
     }
 
     .ms-waffle span {
-      width: 4px;
-      height: 4px;
-      background: #ffffff;
+      width: 4px; height: 4px;
+      background: #fff;
       border-radius: 1px;
     }
 
     .ms-app-name {
-      font-size: 1rem;
+      font-size: 0.98rem;
       font-weight: 600;
-      letter-spacing: -0.2px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .ms-app-divider {
-      opacity: 0.45;
-      font-weight: 300;
-    }
-
-    .ms-app-module {
-      font-size: 0.88rem;
-      font-weight: 400;
-      opacity: 0.95;
     }
 
     .ms-suite-right {
       display: flex;
       align-items: center;
-      gap: 12px;
-      font-size: 0.8rem;
+      gap: 10px;
+      font-size: 0.78rem;
     }
 
     .ms-sync-pill {
       background: rgba(255,255,255,0.16);
-      border: 1px solid rgba(255,255,255,0.3);
-      padding: 4px 10px;
+      padding: 3px 10px;
       border-radius: 12px;
       font-weight: 600;
       display: inline-flex;
@@ -133,52 +99,43 @@
     }
 
     .ms-sync-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px; height: 7px;
       border-radius: 50%;
       background: #ffd335;
     }
 
-    .ms-sync-dot.live {
-      background: #6bb700;
+    .ms-sync-dot.live { background: #6bb700; }
+
+    .ms-gear-btn {
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.28);
+      color: #fff;
+      width: 28px; height: 28px;
+      border-radius: 3px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
     }
 
-    /* Shell Layout */
+    /* Layout */
     .ms-shell {
       display: flex;
-      margin-top: 48px;
-      min-height: calc(100vh - 48px);
+      margin-top: 46px;
+      min-height: calc(100vh - 46px);
     }
 
-    /* Dynamics 365 / Fluent Left Navigation Rail */
     .sidebar {
-      width: 248px;
-      background-color: var(--ms-rail-bg);
+      width: 215px;
+      background: var(--ms-rail-bg);
       border-right: 1px solid var(--ms-border);
-      display: flex;
-      flex-direction: column;
       position: fixed;
-      top: 48px;
-      bottom: 0;
-      left: 0;
-      z-index: 100;
-    }
-
-    .nav-group-label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: var(--ms-text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 16px 16px 6px;
-    }
-
-    .nav-links {
-      padding: 4px 8px;
-      flex: 1;
+      top: 46px; bottom: 0; left: 0;
+      padding: 12px 8px;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
+      z-index: 100;
     }
 
     .nav-btn {
@@ -186,24 +143,20 @@
       border: none;
       color: var(--ms-text);
       padding: 9px 12px;
-      border-radius: 4px;
+      border-radius: 3px;
       text-align: left;
       font-size: 0.86rem;
-      font-weight: 400;
       cursor: pointer;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 10px;
       position: relative;
-      transition: background 0.12s;
     }
 
-    .nav-btn:hover {
-      background: #e1dfdd;
-    }
+    .nav-btn:hover { background: #e1dfdd; }
 
     .nav-btn.active {
-      background: #ffffff;
+      background: #fff;
       color: var(--ms-blue);
       font-weight: 600;
       box-shadow: 0 1px 2px rgba(0,0,0,0.06);
@@ -212,66 +165,33 @@
     .nav-btn.active::before {
       content: '';
       position: absolute;
-      left: 0;
-      top: 6px;
-      bottom: 6px;
+      left: 0; top: 6px; bottom: 6px;
       width: 3px;
       background: var(--ms-blue);
-      border-radius: 0 2px 2px 0;
-    }
-
-    .nav-icon-text {
-      display: flex;
-      align-items: center;
-      gap: 10px;
     }
 
     .ms-icon {
-      width: 16px;
-      height: 16px;
+      width: 15px; height: 15px;
       fill: currentColor;
       flex-shrink: 0;
     }
 
-    .priority-tag {
-      font-size: 0.65rem;
-      padding: 1px 6px;
-      border-radius: 2px;
-      background: var(--ms-blue-light);
-      color: var(--ms-blue);
-      border: 1px solid var(--ms-blue-border);
-      font-weight: 600;
-    }
-
-    .sidebar-footer {
-      padding: 14px 16px;
-      border-top: 1px solid var(--ms-border);
-      background: #eae8e6;
-      font-size: 0.74rem;
-      color: var(--ms-text-secondary);
-      line-height: 1.5;
-    }
-
-    /* Main Content Workspace */
     .main-content {
-      margin-left: 248px;
+      margin-left: 215px;
       flex: 1;
-      padding: 0 0 36px;
-      max-width: calc(100vw - 248px);
+      max-width: calc(100vw - 215px);
     }
 
-    /* Fluent Command Bar */
     .ms-command-bar {
       background: var(--ms-surface);
       border-bottom: 1px solid var(--ms-border);
-      padding: 10px 28px;
+      padding: 8px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
       position: sticky;
-      top: 48px;
+      top: 46px;
       z-index: 90;
     }
 
@@ -283,111 +203,133 @@
 
     .workspace-body {
       padding: 22px 28px;
+      max-width: 1280px;
     }
 
-    .page-header {
+    .page-title {
+      font-size: 1.35rem;
+      font-weight: 600;
       margin-bottom: 18px;
+      color: var(--ms-text);
     }
 
-    .page-header h1 {
-      font-size: 1.45rem;
+    .view-section { display: none; }
+    .view-section.active { display: block; }
+
+    /* 4 Option Boxes */
+    .launcher-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .launcher-grid { grid-template-columns: 1fr; }
+      .sidebar { width: 180px; }
+      .main-content { margin-left: 180px; max-width: calc(100vw - 180px); }
+    }
+
+    .option-box {
+      background: var(--ms-surface);
+      border: 1px solid var(--ms-border);
+      border-top: 4px solid var(--ms-blue);
+      border-radius: 4px;
+      padding: 24px;
+      box-shadow: var(--ms-shadow);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: transform 0.12s, box-shadow 0.12s;
+    }
+
+    .option-box:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--ms-shadow-hover);
+      border-color: var(--ms-blue-border);
+    }
+
+    .option-box.green { border-top-color: var(--ms-green); }
+    .option-box.teal { border-top-color: #008272; }
+    .option-box.amber { border-top-color: var(--ms-amber); }
+
+    .option-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .option-icon {
+      width: 42px; height: 42px;
+      border-radius: 4px;
+      background: var(--ms-blue-light);
+      color: var(--ms-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .option-box.green .option-icon { background: var(--ms-green-bg); color: var(--ms-green); }
+    .option-box.teal .option-icon { background: #e0f2f1; color: #008272; }
+    .option-box.amber .option-icon { background: var(--ms-amber-bg); color: var(--ms-amber); }
+
+    .option-title {
+      font-size: 1.05rem;
       font-weight: 600;
       color: var(--ms-text);
-      letter-spacing: -0.3px;
     }
 
-    .page-header p {
-      font-size: 0.84rem;
+    .option-sub {
+      font-size: 0.8rem;
       color: var(--ms-text-secondary);
       margin-top: 3px;
     }
 
-    /* Fluent MessageBar */
-    .ms-message-bar {
-      background: var(--ms-amber-bg);
-      border: 1px solid #f7d996;
-      border-left: 4px solid var(--ms-amber);
-      color: var(--ms-text);
-      padding: 10px 14px;
-      border-radius: var(--radius);
-      font-size: 0.8rem;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+    .option-arrow {
+      color: var(--ms-blue);
+      font-weight: 600;
+      font-size: 0.9rem;
     }
 
-    /* Views */
-    .view-section {
-      display: none;
-    }
-
-    .view-section.active {
-      display: block;
-    }
-
-    /* Fluent Cards & Grids */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-
+    /* Cards & Grids */
     .card {
       background: var(--ms-surface);
       border: 1px solid var(--ms-border);
-      border-radius: var(--radius);
+      border-radius: 4px;
       padding: 18px 20px;
-      box-shadow: var(--ms-shadow-card);
-    }
-
-    .kpi-card {
-      border-top: 3px solid var(--ms-blue);
-    }
-
-    .kpi-card.green { border-top-color: var(--ms-green); }
-    .kpi-card.amber { border-top-color: var(--ms-amber); }
-    .kpi-card.teal { border-top-color: var(--ms-teal); }
-
-    .kpi-label {
-      font-size: 0.76rem;
-      color: var(--ms-text-secondary);
-      font-weight: 600;
-    }
-
-    .kpi-value {
-      font-size: 1.75rem;
-      font-weight: 700;
-      margin: 6px 0 4px;
-      color: var(--ms-text);
-    }
-
-    .kpi-meta {
-      font-size: 0.76rem;
-      color: var(--ms-text-secondary);
+      box-shadow: var(--ms-shadow);
+      margin-bottom: 18px;
     }
 
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 18px;
-      margin-bottom: 20px;
     }
 
-    @media (max-width: 1050px) {
+    @media (max-width: 1020px) {
       .grid-2 { grid-template-columns: 1fr; }
-      .sidebar { width: 210px; }
-      .main-content { margin-left: 210px; max-width: calc(100vw - 210px); }
     }
 
-    /* Fluent Inputs & Controls */
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    /* Forms */
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
-      gap: 12px;
-      margin-bottom: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
     .form-group {
@@ -397,24 +339,19 @@
     }
 
     label {
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       font-weight: 600;
-      color: var(--ms-text);
+      color: var(--ms-text-secondary);
     }
 
-    input, select, textarea {
-      background: #ffffff;
+    input, select {
+      background: #fff;
       border: 1px solid var(--ms-border-strong);
       color: var(--ms-text);
-      padding: 7px 10px;
+      padding: 6px 9px;
       border-radius: 2px;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       outline: none;
-      transition: border-color 0.15s;
-    }
-
-    input:hover, select:hover {
-      border-color: var(--ms-text);
     }
 
     input:focus, select:focus {
@@ -422,76 +359,66 @@
       box-shadow: inset 0 0 0 1px var(--ms-blue);
     }
 
-    /* Fluent Buttons */
+    /* Buttons */
     .btn {
-      padding: 7px 14px;
+      padding: 6px 13px;
       border-radius: 2px;
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
       border: 1px solid transparent;
-      transition: background 0.12s;
     }
 
-    .btn-primary {
-      background: var(--ms-blue);
-      color: #ffffff;
-    }
+    .btn-primary { background: var(--ms-blue); color: #fff; }
+    .btn-primary:hover { background: var(--ms-blue-hover); }
+    .btn-outline { background: #fff; border-color: var(--ms-border-strong); color: var(--ms-text); }
+    .btn-outline:hover { background: #f3f2f1; }
+    .btn-subtle { background: transparent; color: var(--ms-blue); padding: 5px 8px; }
+    .btn-subtle:hover { background: var(--ms-blue-light); }
 
-    .btn-primary:hover {
-      background: var(--ms-blue-hover);
-    }
-
-    .btn-emerald {
-      background: var(--ms-green);
-      color: #ffffff;
-    }
-
-    .btn-emerald:hover {
-      filter: brightness(0.95);
-    }
-
-    .btn-outline {
-      background: #ffffff;
-      border: 1px solid var(--ms-border-strong);
+    /* One-Liner Result Pill Banner */
+    .one-liner-result {
+      padding: 12px 14px;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      border-left: 4px solid var(--ms-blue);
+      background: var(--ms-blue-light);
       color: var(--ms-text);
     }
 
-    .btn-outline:hover {
-      background: #f3f2f1;
+    .one-liner-result.green {
+      border-left-color: var(--ms-green);
+      background: var(--ms-green-bg);
+      color: #0b5a30;
     }
 
-    .btn-subtle {
-      background: transparent;
-      color: var(--ms-blue);
-      padding: 6px 10px;
+    .one-liner-result.amber {
+      border-left-color: var(--ms-amber);
+      background: var(--ms-amber-bg);
+      color: #7a3e00;
     }
 
-    .btn-subtle:hover {
-      background: var(--ms-blue-light);
-    }
-
-    /* Fluent DataGrid / Tables */
+    /* Tables */
     .table-wrapper {
       overflow-x: auto;
-      margin-top: 10px;
       border: 1px solid var(--ms-border);
-      border-radius: 2px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.84rem;
-      background: #ffffff;
+      font-size: 0.83rem;
+      background: #fff;
     }
 
     th, td {
       text-align: left;
-      padding: 10px 12px;
+      padding: 9px 11px;
       border-bottom: 1px solid var(--ms-border);
     }
 
@@ -499,19 +426,16 @@
       background: #faf9f8;
       color: var(--ms-text-secondary);
       font-weight: 600;
-      font-size: 0.76rem;
+      font-size: 0.75rem;
       border-bottom: 1px solid var(--ms-border-strong);
     }
 
-    tr:hover td {
-      background: #f3f2f1;
-    }
+    tr:hover td { background: #f3f2f1; }
 
-    /* Fluent Semantic Badges */
     .badge {
-      padding: 2px 8px;
+      padding: 2px 7px;
       border-radius: 2px;
-      font-size: 0.73rem;
+      font-size: 0.72rem;
       font-weight: 600;
       display: inline-block;
     }
@@ -521,29 +445,40 @@
     .badge-red { background: var(--ms-red-bg); color: var(--ms-red); }
     .badge-blue { background: var(--ms-blue-light); color: var(--ms-blue); }
 
+    /* Split Bar */
+    .split-bar {
+      height: 14px;
+      width: 100%;
+      background: #e1dfdd;
+      border-radius: 2px;
+      overflow: hidden;
+      display: flex;
+      margin: 12px 0 8px;
+    }
+
+    .split-domestic { background: var(--ms-green); height: 100%; transition: width 0.3s; }
+    .split-import { background: var(--ms-blue); height: 100%; transition: width 0.3s; }
+
     /* Timeline Drawer */
     .timeline-box {
       background: #faf9f8;
       border: 1px solid var(--ms-border-strong);
       border-left: 3px solid var(--ms-blue);
-      border-radius: 2px;
-      padding: 16px;
-      margin-top: 16px;
+      padding: 14px;
+      margin-top: 14px;
     }
 
     .timeline-step {
       display: flex;
-      gap: 12px;
-      padding-bottom: 14px;
+      gap: 10px;
+      padding-bottom: 10px;
+      font-size: 0.82rem;
     }
 
-    .timeline-step:last-child {
-      padding-bottom: 0;
-    }
+    .timeline-step:last-child { padding-bottom: 0; }
 
     .timeline-dot {
-      width: 10px;
-      height: 10px;
+      width: 9px; height: 9px;
       border-radius: 50%;
       background: var(--ms-blue);
       margin-top: 5px;
@@ -553,271 +488,161 @@
     .timeline-dot.completed { background: var(--ms-green); }
     .timeline-dot.alert { background: var(--ms-red); }
 
-    /* Verdict Box */
-    .verdict-card {
-      background: var(--ms-blue-light);
-      border: 1px solid var(--ms-blue-border);
-      border-left: 4px solid var(--ms-blue);
-      border-radius: 2px;
-      padding: 16px;
-      margin-top: 14px;
-    }
-
-    .verdict-card.success {
-      background: #f3faf2;
-      border-color: #b7e1b5;
-      border-left-color: var(--ms-green);
-    }
-
-    .split-bar {
-      height: 14px;
-      width: 100%;
-      background: #e1dfdd;
-      border-radius: 2px;
-      overflow: hidden;
-      display: flex;
-      margin: 12px 0;
-    }
-
-    .split-domestic {
-      background: var(--ms-green);
-      height: 100%;
-      transition: width 0.35s ease;
-    }
-
-    .split-import {
-      background: var(--ms-blue);
-      height: 100%;
-      transition: width 0.35s ease;
-    }
-
-    .code-block {
-      background: #1b1a19;
-      border: 1px solid var(--ms-border-strong);
-      padding: 14px;
-      border-radius: 2px;
-      font-family: 'Cascadia Code', Consolas, 'Courier New', monospace;
-      font-size: 0.78rem;
-      color: #d2d0ce;
-      overflow-x: auto;
-      white-space: pre;
-      max-height: 360px;
-    }
-
-    .section-title {
-      font-size: 0.98rem;
-      font-weight: 600;
-      color: var(--ms-text);
-      margin-bottom: 12px;
-      display: flex;
+    /* Modal */
+    .ms-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
       align-items: center;
-      justify-content: space-between;
-      gap: 8px;
+      justify-content: center;
+      z-index: 300;
+    }
+
+    .ms-modal-backdrop.open { display: flex; }
+
+    .ms-modal {
+      background: #fff;
+      border-radius: 4px;
+      width: 92%;
+      max-width: 500px;
+      padding: 20px;
+      box-shadow: var(--ms-shadow-hover);
+      border-top: 4px solid var(--ms-blue);
     }
   </style>
 </head>
 <body>
 
-  <!-- Microsoft 365 Top App Header -->
+  <!-- Top Bar -->
   <header class="ms-suite-bar">
-    <div class="ms-suite-left">
-      <div class="ms-waffle" title="Microsoft 365 App Launcher">
+    <div class="ms-suite-left" onclick="switchTab('home', document.getElementById('nav-home'))">
+      <div class="ms-waffle">
         <span></span><span></span><span></span>
         <span></span><span></span><span></span>
         <span></span><span></span><span></span>
       </div>
-      <div class="ms-app-name">
-        <span>Dynamics 365</span>
-        <span class="ms-app-divider">|</span>
-        <span class="ms-app-module">CableSource — Strategic Sourcing Intelligence</span>
-      </div>
+      <div class="ms-app-name">CableSource</div>
     </div>
     <div class="ms-suite-right">
-      <div class="ms-sync-pill" id="topSyncPill">
+      <div class="ms-sync-pill">
         <span class="ms-sync-dot" id="topSyncDot"></span>
-        <span id="dataModeBadge">Connecting to Google Sheets...</span>
+        <span id="dataModeBadge">Connecting...</span>
       </div>
+      <button class="ms-gear-btn" title="Google Sheets Settings" onclick="openSettingsModal()">
+        <svg class="ms-icon" viewBox="0 0 16 16"><path d="M9.4 1.5l.4 1.6c.4.2.8.4 1.2.7l1.5-.5 1.4 2.4-1.1 1.1c.1.4.1.8.1 1.2s0 .8-.1 1.2l1.1 1.1-1.4 2.4-1.5-.5c-.4.3-.8.5-1.2.7l-.4 1.6H6.6l-.4-1.6c-.4-.2-.8-.4-1.2-.7l-1.5.5-1.4-2.4 1.1-1.1c-.1-.4-.1-.8-.1-1.2s0-.8.1-1.2L2.1 5.7l1.4-2.4 1.5.5c.4-.3.8-.5 1.2-.7l.4-1.6h2.8zM8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg>
+      </button>
     </div>
   </header>
 
   <div class="ms-shell">
-    <!-- Left Navigation Rail -->
+    <!-- Left Rail -->
     <aside class="sidebar">
-      <div class="nav-group-label">Sourcing Workspace</div>
-      <nav class="nav-links">
-        <button class="nav-btn active" onclick="switchTab('dashboard', this)">
-          <span class="nav-icon-text">
-            <svg class="ms-icon" viewBox="0 0 16 16"><path d="M1 1h6v6H1V1zm8 0h6v6H9V1zM1 9h6v6H1V9zm8 0h6v6H9V9z"/></svg>
-            <span>Executive Summary</span>
-          </span>
-        </button>
-        <button class="nav-btn" onclick="switchTab('calculator', this)">
-          <span class="nav-icon-text">
-            <svg class="ms-icon" viewBox="0 0 16 16"><path d="M2 1h12a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zm1 2v3h10V3H3zm0 5v2h2V8H3zm4 0v2h2V8H7zm4 0v2h2V8h-2zM3 12v2h2v-2H3zm4 0v2h2v-2H7zm4 0v2h2v-2h-2z"/></svg>
-            <span>Landed-Cost Calc</span>
-          </span>
-          <span class="priority-tag">P1</span>
-        </button>
-        <button class="nav-btn" onclick="switchTab('suppliers', this)">
-          <span class="nav-icon-text">
-            <svg class="ms-icon" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 6c0-2.76 2.24-5 5-5s5 2.24 5 5H3z"/></svg>
-            <span>Supplier Intelligence</span>
-          </span>
-          <span class="priority-tag">P1</span>
-        </button>
-        <button class="nav-btn" onclick="switchTab('recommendations', this)">
-          <span class="nav-icon-text">
-            <svg class="ms-icon" viewBox="0 0 16 16"><path d="M9.5 1.5l1.8 3.7 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4-2.9-2.8 4-.6L9.5 1.5z"/></svg>
-            <span>Substitution Engine</span>
-          </span>
-          <span class="priority-tag">P1</span>
-        </button>
-
-        <div class="nav-group-label" style="margin-top: 8px;">Logistics &amp; Data</div>
-        <button class="nav-btn" onclick="switchTab('tracking', this)">
-          <span class="nav-icon-text">
-            <svg class="ms-icon" viewBox="0 0 16 16"><path d="M1 3h10v7H1V3zm11 2h2l2 2.5V10h-4V5zM4 11a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>
-            <span>Container Tracking</span>
-          </span>
-          <span class="priority-tag">P2</span>
-        </button>
-        <button class="nav-btn" onclick="switchTab('backend', this)">
-          <span class="nav-icon-text">
-            <svg class="ms-icon" viewBox="0 0 16 16"><path d="M2 2h12v3H2V2zm0 4.5h12v3H2v-3zM2 11h12v3H2v-3z"/></svg>
-            <span>Sheets Data Connector</span>
-          </span>
-        </button>
-      </nav>
-
-      <div class="sidebar-footer">
-        <div><strong>Tenant:</strong> India Cable Mfg.</div>
-        <div><strong>Backend:</strong> Apps Script Web App</div>
-        <div><strong>Database:</strong> Google Sheets</div>
-      </div>
+      <button class="nav-btn active" id="nav-home" onclick="switchTab('home', this)">
+        <svg class="ms-icon" viewBox="0 0 16 16"><path d="M1 1h6v6H1V1zm8 0h6v6H9V1zM1 9h6v6H1V9zm8 0h6v6H9V9z"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="nav-btn" id="nav-calculator" onclick="switchTab('calculator', this)">
+        <svg class="ms-icon" viewBox="0 0 16 16"><path d="M2 1h12a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zm1 2v3h10V3H3zm0 5v2h2V8H3zm4 0v2h2V8H7zm4 0v2h2V8h-2zM3 12v2h2v-2H3zm4 0v2h2v-2H7zm4 0v2h2v-2h-2z"/></svg>
+        <span>Landed-Cost Calc</span>
+      </button>
+      <button class="nav-btn" id="nav-suppliers" onclick="switchTab('suppliers', this)">
+        <svg class="ms-icon" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 6c0-2.76 2.24-5 5-5s5 2.24 5 5H3z"/></svg>
+        <span>Suppliers</span>
+      </button>
+      <button class="nav-btn" id="nav-recommendations" onclick="switchTab('recommendations', this)">
+        <svg class="ms-icon" viewBox="0 0 16 16"><path d="M9.5 1.5l1.8 3.7 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4-2.9-2.8 4-.6L9.5 1.5z"/></svg>
+        <span>Substitution Engine</span>
+      </button>
+      <button class="nav-btn" id="nav-tracking" onclick="switchTab('tracking', this)">
+        <svg class="ms-icon" viewBox="0 0 16 16"><path d="M1 3h10v7H1V3zm11 2h2l2 2.5V10h-4V5zM4 11a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>
+        <span>Container Tracking</span>
+      </button>
     </aside>
 
     <!-- Main Workspace -->
     <main class="main-content">
-      <!-- Fluent Command Bar -->
       <div class="ms-command-bar">
         <div class="cmd-actions">
-          <button class="btn btn-primary" onclick="switchTab('calculator', document.querySelectorAll('.nav-btn')[1])">+ New Cost Evaluation</button>
-          <button class="btn btn-outline" onclick="manualRefreshSheet()">↻ Refresh Google Sheet</button>
+          <button class="btn btn-outline" id="backHomeBtn" style="display:none;" onclick="switchTab('home', document.getElementById('nav-home'))">← All Options</button>
+          <button class="btn btn-outline" onclick="manualRefreshSheet()">↻ Refresh Sheet</button>
           <button class="btn btn-outline" onclick="exportSummaryCSV()">↓ Export CSV</button>
+          <a id="headerSheetLink" href="#" target="_blank" class="btn btn-subtle" style="display:none; text-decoration:none;">Open Sheet ↗</a>
         </div>
-        <div style="font-size: 0.78rem; color: var(--ms-text-secondary);" id="lastSyncTimestamp">
-          Last Sync: Initializing...
-        </div>
+        <div style="font-size: 0.76rem; color: var(--ms-text-secondary);" id="lastSyncTimestamp">Syncing...</div>
       </div>
 
       <div class="workspace-body">
-        <div class="page-header">
-          <h1 id="pageTitle">Executive Sourcing Summary</h1>
-          <p id="pageSubtitle">Reliance on Imports vs. Make-in-India Decision Support for Indian Cable Manufacturers</p>
-        </div>
+        <h1 class="page-title" id="pageTitle">CableSource Portal</h1>
 
-        <div class="ms-message-bar">
-          <span><strong>Data Transparency Notice:</strong> Shipment ETAs are carrier estimates, not guaranteed arrival dates. Preloaded benchmarks and container milestones are labelled <em>Illustrative Sample Data</em> unless updated via live carrier API.</span>
-          <a id="headerSheetLink" href="#" target="_blank" style="display:none; color: var(--ms-blue); font-weight: 600; text-decoration: none; white-space: nowrap;">Open Google Sheet ↗</a>
-        </div>
-
-        <!-- ==================== 1. EXECUTIVE DASHBOARD ==================== -->
-        <section id="dashboard" class="view-section active">
-          <div class="kpi-grid">
-            <div class="card kpi-card amber">
-              <div class="kpi-label">Overall Import Dependency</div>
-              <div class="kpi-value">46.5%</div>
-              <div class="kpi-meta">High exposure in XLPE Polymers &amp; Preforms</div>
-            </div>
-            <div class="card kpi-card green">
-              <div class="kpi-label">Est. Make-in-India Savings</div>
-              <div class="kpi-value" style="color: var(--ms-green);">₹1.84 Cr</div>
-              <div class="kpi-meta">Annualized across Copper Rod &amp; PVC compounds</div>
-            </div>
-            <div class="card kpi-card">
-              <div class="kpi-label">Active Tracked Containers</div>
-              <div class="kpi-value" style="color: var(--ms-blue);" id="kpiTotalContainers">6</div>
-              <div class="kpi-meta" id="kpiDelayedContainers">2 Delayed at Transshipment (Alerts Active)</div>
-            </div>
-            <div class="card kpi-card teal">
-              <div class="kpi-label">Avg. Import vs. Domestic Lead Time</div>
-              <div class="kpi-value">42d vs. 6d</div>
-              <div class="kpi-meta">85.7% working capital cycle compression</div>
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="card">
-              <div class="section-title">
-                <span>Raw Material Import Dependency vs. Domestic Readiness (%)</span>
-                <span class="badge badge-blue">Illustrative Sector Data</span>
+        <!-- ==================== 0. HOME (4 OPTION BOXES) ==================== -->
+        <section id="home" class="view-section active">
+          <div class="launcher-grid">
+            <div class="option-box" onclick="switchTab('calculator', document.getElementById('nav-calculator'))">
+              <div class="option-left">
+                <div class="option-icon">
+                  <svg class="ms-icon" style="width:20px;height:20px;" viewBox="0 0 16 16"><path d="M2 1h12a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zm1 2v3h10V3H3zm0 5v2h2V8H3zm4 0v2h2V8H7zm4 0v2h2V8h-2zM3 12v2h2v-2H3zm4 0v2h2v-2H7zm4 0v2h2v-2h-2z"/></svg>
+                </div>
+                <div>
+                  <div class="option-title">Landed-Cost Calculator</div>
+                  <div class="option-sub">Import vs. Make-in-India TCO (₹/MT)</div>
+                </div>
               </div>
-              <div id="dependencyChart" style="height: 310px;"></div>
+              <div class="option-arrow">→</div>
             </div>
-            <div class="card">
-              <div class="section-title">
-                <span>Landed Cost Comparison (₹ Thousands / MT)</span>
-                <span class="badge badge-green">INR / Metric Ton</span>
-              </div>
-              <div id="costComparisonChart" style="height: 310px;"></div>
-            </div>
-          </div>
 
-          <div class="card">
-            <div class="section-title">
-              <span>Active Supply Chain Alerts &amp; Sourcing Triggers</span>
-              <button class="btn btn-subtle" onclick="switchTab('tracking', document.querySelectorAll('.nav-btn')[4])">View All Containers →</button>
+            <div class="option-box green" onclick="switchTab('suppliers', document.getElementById('nav-suppliers'))">
+              <div class="option-left">
+                <div class="option-icon">
+                  <svg class="ms-icon" style="width:20px;height:20px;" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 6c0-2.76 2.24-5 5-5s5 2.24 5 5H3z"/></svg>
+                </div>
+                <div>
+                  <div class="option-title">Supplier Intelligence</div>
+                  <div class="option-sub" id="homeSupplierCount">9 Domestic &amp; Global Suppliers</div>
+                </div>
+              </div>
+              <div class="option-arrow">→</div>
             </div>
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Alert Severity</th>
-                    <th>Reference / Material</th>
-                    <th>Carrier / Supplier</th>
-                    <th>Operational Impact</th>
-                    <th>Recommended Sourcing Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><span class="badge badge-red">ETA Delay (+4 Days)</span></td>
-                    <td><strong>COSU6326932890</strong> (XLPE Compound)</td>
-                    <td>COSCO Shipping</td>
-                    <td>Port congestion at Singapore transshipment; ETA slipped to Nov 22</td>
-                    <td>Trigger 15 MT emergency buffer from domestic vendor</td>
-                  </tr>
-                  <tr>
-                    <td><span class="badge badge-amber">Duty &amp; Forex Alert</span></td>
-                    <td><strong>8mm ETP Copper Rod</strong></td>
-                    <td>Import (Chile/UAE) vs. Hindalco</td>
-                    <td>USD/INR at ₹84.40 makes domestic landed cost ₹9,200/MT cheaper</td>
-                    <td>Shift Q1 allocation 80% Make-in-India</td>
-                  </tr>
-                  <tr>
-                    <td><span class="badge badge-red">ETA Delay (+2 Days)</span></td>
-                    <td><strong>MSCU8841209</strong> (Optical Preforms)</td>
-                    <td>MSC</td>
-                    <td>Vessel schedule adjustment en route to Nhava Sheva (INNSA)</td>
-                    <td>Hold safety stock; zero domestic tier-1 capacity available</td>
-                  </tr>
-                </tbody>
-              </table>
+
+            <div class="option-box teal" onclick="switchTab('recommendations', document.getElementById('nav-recommendations'))">
+              <div class="option-left">
+                <div class="option-icon">
+                  <svg class="ms-icon" style="width:20px;height:20px;" viewBox="0 0 16 16"><path d="M9.5 1.5l1.8 3.7 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4-2.9-2.8 4-.6L9.5 1.5z"/></svg>
+                </div>
+                <div>
+                  <div class="option-title">Substitution Engine</div>
+                  <div class="option-sub">Domestic vs. Import Split Simulator</div>
+                </div>
+              </div>
+              <div class="option-arrow">→</div>
+            </div>
+
+            <div class="option-box amber" onclick="switchTab('tracking', document.getElementById('nav-tracking'))">
+              <div class="option-left">
+                <div class="option-icon">
+                  <svg class="ms-icon" style="width:20px;height:20px;" viewBox="0 0 16 16"><path d="M1 3h10v7H1V3zm11 2h2l2 2.5V10h-4V5zM4 11a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>
+                </div>
+                <div>
+                  <div class="option-title">Container Tracking</div>
+                  <div class="option-sub" id="homeContainerCount">6 Monitored Shipments</div>
+                </div>
+              </div>
+              <div class="option-arrow">→</div>
             </div>
           </div>
         </section>
 
-        <!-- ==================== 2. LANDED-COST CALCULATOR (P1) ==================== -->
+        <!-- ==================== 1. LANDED-COST CALCULATOR ==================== -->
         <section id="calculator" class="view-section">
           <div class="grid-2">
             <div class="card">
               <div class="section-title">
-                <span>Import vs. Domestic Landed-Cost Parameters</span>
-                <span class="badge badge-blue">Priority 1 Module</span>
+                <span>Cost Inputs (Per MT)</span>
+                <button class="btn btn-subtle" onclick="loadMaterialPreset()">Reset</button>
               </div>
               <div class="form-grid">
                 <div class="form-group">
-                  <label>Cable Raw Material</label>
+                  <label>Material</label>
                   <select id="calcMaterial" onchange="loadMaterialPreset()">
                     <option value="copper">8mm ETP Copper Wire Rod</option>
                     <option value="xlpe">XLPE HV Insulating Compound</option>
@@ -827,103 +652,73 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label>Order Quantity (MT)</label>
+                  <label>Quantity (MT)</label>
                   <input type="number" id="calcQty" value="100" min="1" oninput="calculateLandedCost()" />
                 </div>
                 <div class="form-group">
-                  <label>USD to INR Exchange Rate (₹)</label>
+                  <label>USD/INR (₹)</label>
                   <input type="number" id="calcFx" value="84.40" step="0.1" oninput="calculateLandedCost()" />
                 </div>
               </div>
 
-              <div style="font-size: 0.84rem; font-weight: 600; color: var(--ms-blue); margin: 12px 0 8px; border-bottom: 1px solid var(--ms-border); padding-bottom: 4px;">
-                A. Import Route Cost Inputs (Per MT)
-              </div>
               <div class="form-grid">
                 <div class="form-group">
-                  <label>FOB Overseas Price (USD/MT)</label>
+                  <label>Import FOB (USD/MT)</label>
                   <input type="number" id="impFobUsd" value="9450" oninput="calculateLandedCost()" />
                 </div>
                 <div class="form-group">
-                  <label>Ocean Freight &amp; Insurance (USD/MT)</label>
+                  <label>Ocean Freight (USD/MT)</label>
                   <input type="number" id="impFreightUsd" value="145" oninput="calculateLandedCost()" />
                 </div>
                 <div class="form-group">
-                  <label>Basic Customs Duty + SWS (%)</label>
+                  <label>Customs Duty (%)</label>
                   <input type="number" id="impDutyPct" value="5.5" step="0.5" oninput="calculateLandedCost()" />
                 </div>
                 <div class="form-group">
-                  <label>Port Clearance, CHA &amp; Inland (₹/MT)</label>
+                  <label>Port &amp; CHA (₹/MT)</label>
                   <input type="number" id="impPortInr" value="4800" oninput="calculateLandedCost()" />
                 </div>
                 <div class="form-group">
-                  <label>Working Capital Holding (₹/MT)</label>
+                  <label>Import Holding (₹/MT)</label>
                   <input type="number" id="impHoldingInr" value="6500" oninput="calculateLandedCost()" />
                 </div>
-              </div>
-
-              <div style="font-size: 0.84rem; font-weight: 600; color: var(--ms-green); margin: 12px 0 8px; border-bottom: 1px solid var(--ms-border); padding-bottom: 4px;">
-                B. Make-in-India Domestic Inputs (Per MT)
-              </div>
-              <div class="form-grid">
                 <div class="form-group">
-                  <label>Domestic Ex-Works Price (₹/MT)</label>
+                  <label>Domestic Ex-Works (₹/MT)</label>
                   <input type="number" id="domBaseInr" value="832000" oninput="calculateLandedCost()" />
                 </div>
                 <div class="form-group">
-                  <label>Domestic Road/Rail Freight (₹/MT)</label>
+                  <label>Domestic Freight (₹/MT)</label>
                   <input type="number" id="domFreightInr" value="3200" oninput="calculateLandedCost()" />
                 </div>
                 <div class="form-group">
-                  <label>JIT Inventory Holding Cost (₹/MT)</label>
+                  <label>Domestic Holding (₹/MT)</label>
                   <input type="number" id="domHoldingInr" value="1100" oninput="calculateLandedCost()" />
                 </div>
               </div>
 
-              <div style="margin-top: 14px; display: flex; gap: 10px;">
-                <button class="btn btn-primary" onclick="saveCostAnalysis()">Save to Google Sheet</button>
-                <button class="btn btn-outline" onclick="loadMaterialPreset()">Reset Preset</button>
-              </div>
+              <button class="btn btn-primary" onclick="saveCostAnalysis()">Save to Sheet</button>
             </div>
 
             <div class="card">
-              <div class="section-title">
-                <span>Total Landed Cost Breakdown &amp; Verdict</span>
-                <span class="badge badge-green">Live Simulation</span>
-              </div>
-
-              <div class="kpi-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 12px;">
-                <div style="background: #faf9f8; padding: 12px 14px; border: 1px solid var(--ms-border); border-radius: 2px;">
-                  <div class="kpi-label">Total Import Landed / MT</div>
-                  <div class="kpi-value" style="font-size: 1.4rem; color: var(--ms-blue);" id="resImpPerMt">₹0</div>
-                  <div class="kpi-meta" id="resImpTotal">Total Batch: ₹0</div>
-                </div>
-                <div style="background: #faf9f8; padding: 12px 14px; border: 1px solid var(--ms-border); border-radius: 2px;">
-                  <div class="kpi-label">Total Domestic Landed / MT</div>
-                  <div class="kpi-value" style="font-size: 1.4rem; color: var(--ms-green);" id="resDomPerMt">₹0</div>
-                  <div class="kpi-meta" id="resDomTotal">Total Batch: ₹0</div>
-                </div>
-              </div>
-
-              <div id="calcVerdictBanner" class="verdict-card" style="margin-top: 0; margin-bottom: 14px;"></div>
-
-              <div id="calcWaterfallChart" style="height: 260px;"></div>
+              <div class="section-title"><span>Comparison Result</span></div>
+              <div id="calcVerdictBanner" class="one-liner-result green"></div>
+              <div id="calcWaterfallChart" style="height: 275px;"></div>
             </div>
           </div>
 
           <div class="card">
-            <div class="section-title"><span>Saved Cost Analysis Scenarios (Synced with "Cost Analysis" Sheet Tab)</span></div>
+            <div class="section-title"><span>Saved Evaluations</span></div>
             <div class="table-wrapper">
               <table>
                 <thead>
                   <tr>
                     <th>Material</th>
-                    <th>Qty (MT)</th>
-                    <th>Domestic Landed (₹/MT)</th>
-                    <th>Import Landed (₹/MT)</th>
-                    <th>Net Variance (₹/MT)</th>
-                    <th>Batch Savings (₹)</th>
-                    <th>Optimal Choice</th>
+                    <th>Qty</th>
+                    <th>Domestic (₹/MT)</th>
+                    <th>Import (₹/MT)</th>
+                    <th>Variance (₹/MT)</th>
+                    <th>Batch Savings</th>
+                    <th>Decision</th>
                   </tr>
                 </thead>
                 <tbody id="savedCostTableBody"></tbody>
@@ -932,18 +727,18 @@
           </div>
         </section>
 
-        <!-- ==================== 3. SUPPLIER INTELLIGENCE (P1) ==================== -->
+        <!-- ==================== 2. SUPPLIERS ==================== -->
         <section id="suppliers" class="view-section">
-          <div class="card" style="margin-bottom: 18px;">
+          <div class="card">
             <div class="section-title">
-              <span>Domestic &amp; International Supplier Directory (Synced with "Suppliers" Tab)</span>
-              <span class="badge badge-amber">Illustrative Benchmark Dataset</span>
+              <span>Supplier Directory</span>
+              <button class="btn btn-primary" onclick="openAddSupplierModal()">+ Add Supplier</button>
             </div>
-            <div class="form-grid" style="margin-bottom: 0;">
+            <div class="form-grid" style="margin-bottom: 12px;">
               <div class="form-group">
-                <label>Filter by Material Category</label>
+                <label>Material</label>
                 <select id="supFilterMaterial" onchange="renderSuppliers()">
-                  <option value="ALL">All Cable Raw Materials</option>
+                  <option value="ALL">All Materials</option>
                   <option value="Copper Rod">8mm ETP Copper Rod</option>
                   <option value="XLPE Compound">XLPE Insulating Compound</option>
                   <option value="Aluminium Rod">EC Grade Aluminium Rod</option>
@@ -952,101 +747,51 @@
                 </select>
               </div>
               <div class="form-group">
-                <label>Origin Classification</label>
+                <label>Origin</label>
                 <select id="supFilterOrigin" onchange="renderSuppliers()">
-                  <option value="ALL">All Origins (Domestic &amp; Import)</option>
-                  <option value="India">Make-in-India (Domestic)</option>
-                  <option value="Import">International (Import)</option>
+                  <option value="ALL">All Origins</option>
+                  <option value="India">Make-in-India</option>
+                  <option value="Import">Import</option>
                 </select>
               </div>
               <div class="form-group">
                 <label>Sort By</label>
                 <select id="supSortBy" onchange="renderSuppliers()">
-                  <option value="price">Lowest Landed Price (₹/MT)</option>
-                  <option value="lead">Shortest Lead Time (Days)</option>
-                  <option value="capacity">Highest Monthly Capacity (MT)</option>
+                  <option value="price">Lowest Price</option>
+                  <option value="lead">Shortest Lead Time</option>
+                  <option value="capacity">Highest Capacity</option>
                 </select>
               </div>
             </div>
-          </div>
 
-          <div class="card" style="margin-bottom: 18px;">
             <div class="table-wrapper">
               <table>
                 <thead>
                   <tr>
-                    <th>Supplier Name</th>
-                    <th>Country / Origin</th>
+                    <th>Supplier</th>
+                    <th>Origin</th>
                     <th>Material</th>
-                    <th>Est. Landed Price (₹/MT)</th>
-                    <th>Monthly Capacity (MT)</th>
+                    <th>Landed Price (₹/MT)</th>
+                    <th>Capacity/Mo</th>
                     <th>Lead Time</th>
-                    <th>Quality Certifications</th>
-                    <th>Qualification Status</th>
+                    <th>Certifications</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody id="supplierTableBody"></tbody>
               </table>
             </div>
           </div>
-
-          <div class="card">
-            <div class="section-title"><span>Add New Verified Supplier Record</span></div>
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Supplier Name</label>
-                <input type="text" id="newSupName" placeholder="e.g., Sterlite Copper / Shakun Polymers" />
-              </div>
-              <div class="form-group">
-                <label>Country</label>
-                <input type="text" id="newSupCountry" placeholder="e.g., India / UAE / South Korea" />
-              </div>
-              <div class="form-group">
-                <label>Material</label>
-                <select id="newSupMat">
-                  <option value="Copper Rod">Copper Rod</option>
-                  <option value="XLPE Compound">XLPE Compound</option>
-                  <option value="Aluminium Rod">Aluminium Rod</option>
-                  <option value="Optical Preform">Optical Preform</option>
-                  <option value="PVC Compound">PVC Compound</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Price (₹/MT)</label>
-                <input type="number" id="newSupPrice" placeholder="e.g., 835000" />
-              </div>
-              <div class="form-group">
-                <label>Capacity (MT/Month)</label>
-                <input type="number" id="newSupCap" placeholder="e.g., 1500" />
-              </div>
-              <div class="form-group">
-                <label>Lead Time (Days)</label>
-                <input type="number" id="newSupLead" placeholder="e.g., 5" />
-              </div>
-              <div class="form-group">
-                <label>Certifications</label>
-                <input type="text" id="newSupCert" placeholder="e.g., BIS IS 12444, ISO 9001, IEC" />
-              </div>
-            </div>
-            <button class="btn btn-primary" onclick="addSupplier()">+ Save Supplier to Google Sheet</button>
-          </div>
         </section>
 
-        <!-- ==================== 4. SUBSTITUTION RECOMMENDATION ENGINE (P1) ==================== -->
+        <!-- ==================== 3. SUBSTITUTION ENGINE ==================== -->
         <section id="recommendations" class="view-section">
           <div class="grid-2">
             <div class="card">
-              <div class="section-title">
-                <span>Domestic Supplier Substitution Simulator</span>
-                <span class="badge badge-green">Core Differentiator</span>
-              </div>
-              <p style="font-size: 0.83rem; color: var(--ms-text-secondary); margin-bottom: 14px;">
-                Evaluates raw material demand against verified Indian supplier capacity, BIS/IEC certification readiness, landed cost parity, and transit risk to recommend an optimal <strong>Make-in-India vs. Import Split</strong>.
-              </p>
-
+              <div class="section-title"><span>Sourcing Parameters</span></div>
               <div class="form-grid">
                 <div class="form-group">
-                  <label>Target Raw Material</label>
+                  <label>Material</label>
                   <select id="recMaterial" onchange="runSubstitutionEngine()">
                     <option value="Copper Rod">8mm ETP Copper Wire Rod</option>
                     <option value="XLPE Compound">XLPE HV Insulating Compound</option>
@@ -1056,84 +801,65 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label>Required Batch Volume (MT)</label>
+                  <label>Batch Volume (MT)</label>
                   <input type="number" id="recVolume" value="100" min="10" oninput="runSubstitutionEngine()" />
                 </div>
                 <div class="form-group">
-                  <label>Voltage / Technical Grade</label>
+                  <label>Voltage Grade</label>
                   <select id="recGrade" onchange="runSubstitutionEngine()">
-                    <option value="standard">Standard LT / HT (Up to 33kV)</option>
-                    <option value="ehv">Extra High Voltage (EHV 132kV+ / Submarine)</option>
+                    <option value="standard">LT / HT (Up to 33kV)</option>
+                    <option value="ehv">EHV (132kV+)</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label>Strategic Priority Weighting</label>
+                  <label>Priority</label>
                   <select id="recPriority" onchange="runSubstitutionEngine()">
-                    <option value="balanced">Balanced (Cost + Lead Time + Quality)</option>
-                    <option value="mii">Make-in-India / PLI Compliance Maximization</option>
-                    <option value="cost">Lowest Unit Landed Cost Only</option>
+                    <option value="balanced">Balanced (Cost + Lead Time)</option>
+                    <option value="mii">Make-in-India Maximization</option>
+                    <option value="cost">Lowest Unit Cost</option>
                   </select>
                 </div>
               </div>
-
-              <button class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 6px;" onclick="runSubstitutionEngine()">
-                Generate Strategic Sourcing Recommendation
-              </button>
             </div>
 
             <div class="card">
-              <div class="section-title">
-                <span>Recommended Sourcing Allocation</span>
-                <span class="badge badge-amber">Illustrative Model Output</span>
-              </div>
+              <div class="section-title"><span>Recommended Allocation</span></div>
               <div id="recOutputArea"></div>
             </div>
           </div>
         </section>
 
-        <!-- ==================== 5. MULTI-CARRIER CONTAINER TRACKING (P2) ==================== -->
+        <!-- ==================== 4. CONTAINER TRACKING ==================== -->
         <section id="tracking" class="view-section">
-          <div class="card" style="margin-bottom: 18px;">
-            <div class="section-title">
-              <span>Unified Multi-Carrier Container Tracking</span>
-              <span class="badge badge-blue">COSCO • MSC • Maersk • CMA CGM • ONE • Evergreen • Wan Hai</span>
-            </div>
-
-            <div class="grid-2" style="margin-bottom: 0;">
-              <div>
-                <label>Track Single Container / Bill of Lading (Auto-Detects Carrier via BIC Prefix)</label>
-                <div style="display: flex; gap: 8px; margin-top: 5px;">
-                  <input type="text" id="singleContainerInput" placeholder="e.g., COSU6326932890, MAEU9182734, MSCU8841209" style="flex: 1;" onkeyup="previewCarrierDetect()" onkeydown="if(event.key==='Enter'){event.preventDefault();addSingleContainer();}" />
-                  <button class="btn btn-primary" onclick="addSingleContainer()">Track Shipment</button>
-                </div>
-                <div id="carrierDetectHint" style="font-size: 0.78rem; color: var(--ms-green); font-weight: 600; margin-top: 5px; min-height: 18px;"></div>
+          <div class="card">
+            <div class="section-title"><span>Search / Track Container</span></div>
+            <div class="grid-2">
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="singleContainerInput" placeholder="Container / B/L # (e.g. COSU6326932890)" style="flex: 1;" onkeyup="previewCarrierDetect()" onkeydown="if(event.key==='Enter'){event.preventDefault();addSingleContainer();}" />
+                <button class="btn btn-primary" onclick="addSingleContainer()">Track</button>
               </div>
-
-              <div>
-                <label>Bulk Upload (Paste Comma/Line-Separated Container #s or Upload CSV)</label>
-                <div style="display: flex; gap: 8px; margin-top: 5px;">
-                  <input type="text" id="bulkContainerInput" placeholder="e.g., HLCU4412098, ONEU7731204, EGLV5521908" style="flex: 1;" onkeydown="if(event.key==='Enter'){event.preventDefault();addBulkContainers();}" />
-                  <button class="btn btn-outline" onclick="addBulkContainers()">Bulk Add</button>
-                  <label class="btn btn-outline" style="cursor: pointer; margin: 0;">
-                    CSV
-                    <input type="file" accept=".csv,.txt" style="display: none;" onchange="handleCSVUpload(event)" />
-                  </label>
-                </div>
-                <div style="font-size: 0.75rem; color: var(--ms-text-muted); margin-top: 5px;">Supports CSV column of ISO 6346 container numbers.</div>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="bulkContainerInput" placeholder="Bulk IDs (comma separated)" style="flex: 1;" onkeydown="if(event.key==='Enter'){event.preventDefault();addBulkContainers();}" />
+                <button class="btn btn-outline" onclick="addBulkContainers()">Bulk</button>
+                <label class="btn btn-outline" style="cursor: pointer; margin: 0;">
+                  CSV
+                  <input type="file" accept=".csv,.txt" style="display: none;" onchange="handleCSVUpload(event)" />
+                </label>
               </div>
             </div>
+            <div id="carrierDetectHint" style="font-size: 0.78rem; color: var(--ms-green); font-weight: 600; margin-top: 6px; min-height: 16px;"></div>
           </div>
 
           <div class="card">
             <div class="section-title">
-              <span id="trackingTableTitle">Active Monitored Shipments (Synced with "Containers" Sheet Tab)</span>
+              <span id="trackingTableTitle">Monitored Shipments</span>
               <div style="display: flex; gap: 8px; align-items: center;">
-                <button class="btn btn-subtle" id="showAllContainersBtn" style="display: none; font-size: 0.8rem;" onclick="clearContainerSearchFilter()">Show All Shipments (<span id="allContainersCount">0</span>)</button>
-                <select id="trackFilterStatus" onchange="renderContainers()" style="padding: 5px 10px; font-size: 0.8rem;">
+                <button class="btn btn-subtle" id="showAllContainersBtn" style="display: none;" onclick="clearContainerSearchFilter()">Show All (<span id="allContainersCount">0</span>)</button>
+                <select id="trackFilterStatus" onchange="renderContainers()" style="padding: 4px 8px; font-size: 0.8rem;">
                   <option value="ALL">All Statuses</option>
-                  <option value="Delayed">Delayed / Alert Only</option>
+                  <option value="Delayed">Delayed</option>
                   <option value="In Transit">In Transit</option>
-                  <option value="Discharged">Discharged at Port</option>
+                  <option value="Discharged">Discharged</option>
                 </select>
               </div>
             </div>
@@ -1144,13 +870,13 @@
                   <tr>
                     <th>Container / B/L #</th>
                     <th>Carrier</th>
-                    <th>Cargo / Material</th>
-                    <th>Route (POL → POD)</th>
+                    <th>Material</th>
+                    <th>Route</th>
                     <th>Vessel / Voyage</th>
-                    <th>ETA (Estimate)</th>
+                    <th>ETA</th>
                     <th>Status</th>
-                    <th>Source &amp; Last Update</th>
-                    <th>Timeline</th>
+                    <th>Updated</th>
+                    <th>Events</th>
                   </tr>
                 </thead>
                 <tbody id="containerTableBody"></tbody>
@@ -1158,60 +884,11 @@
             </div>
 
             <div id="timelineDrawer" class="timeline-box" style="display: none;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h4 id="timelineTitle" style="font-size: 0.92rem; color: var(--ms-text);">Shipment Event Timeline</h4>
-                <button class="btn btn-outline" style="padding: 3px 10px; font-size: 0.75rem;" onclick="document.getElementById('timelineDrawer').style.display='none'">Close</button>
+              <div class="section-title" style="margin-bottom: 8px;">
+                <span id="timelineTitle">Shipment Events</span>
+                <button class="btn btn-outline" style="padding: 2px 8px; font-size: 0.75rem;" onclick="document.getElementById('timelineDrawer').style.display='none'">Close</button>
               </div>
               <div id="timelineEventsList"></div>
-            </div>
-          </div>
-        </section>
-
-        <!-- ==================== 6. GOOGLE SHEETS & APPS SCRIPT CONNECTOR ==================== -->
-        <section id="backend" class="view-section">
-          <div class="grid-2">
-            <div class="card">
-              <div class="section-title">
-                <span>Active Google Apps Script Web App Connection</span>
-                <span class="badge badge-green">Pre-Configured</span>
-              </div>
-              <p style="font-size: 0.83rem; color: var(--ms-text-secondary); margin-bottom: 12px;">
-                Your Google Apps Script Web App endpoint is embedded directly in this deployment so anyone opening your GitHub Pages site automatically syncs with your <strong>CableSource Database</strong> Google Sheet.
-              </p>
-              <div class="form-group" style="margin-bottom: 12px;">
-                <label>Embedded Google Apps Script Deployment URL (/exec)</label>
-                <input type="url" id="gasEndpointInput" value="https://script.google.com/macros/s/AKfycbysisf1NNvyGV418LwrfoqFZUEhv5NdP5mvSiXEbbYj92XMWZGE3xSAdFE6E5sv4p4FBw/exec" />
-              </div>
-              <div style="display: flex; gap: 10px;">
-                <button class="btn btn-primary" onclick="saveGasUrl()">Test &amp; Sync Now</button>
-                <button class="btn btn-outline" onclick="resetDefaultGasUrl()">Restore Default URL</button>
-              </div>
-              <div id="gasConnectionStatus" style="margin-top: 12px; font-size: 0.82rem; color: var(--ms-text-secondary);"></div>
-
-              <hr style="border: 0; border-top: 1px solid var(--ms-border); margin: 18px 0;" />
-
-              <h4 style="font-size: 0.88rem; margin-bottom: 8px;">Google Sheet Database Schema (5 Tabs)</h4>
-              <ul style="font-size: 0.81rem; color: var(--ms-text-secondary); padding-left: 18px; line-height: 1.7;">
-                <li><strong>Containers:</strong> Container Number, Carrier, Material, Origin, Destination, ETA, Baseline ETA, Status, Vessel, Voyage, Last Update, Source</li>
-                <li><strong>Tracking Events:</strong> Container Number, Event Type, Event Location, Event Date/Time, Event Description</li>
-                <li><strong>Suppliers:</strong> Supplier Name, Country, Origin, Material, Price, Capacity, Lead Time, Quality Certifications, Status</li>
-                <li><strong>Cost Analysis:</strong> Material, Quantity, Domestic Landed, Import Landed, Net Variance, Batch Savings, Optimal Choice, Timestamp</li>
-                <li><strong>API Logs:</strong> Request Time, Container Number, Provider, Response Status, Last API Update, Error Details</li>
-              </ul>
-            </div>
-
-            <div class="card">
-              <div class="section-title">
-                <span>Deployment &amp; GitHub Pages Checklist</span>
-                <span class="badge badge-blue">Hosting Guide</span>
-              </div>
-              <ol style="font-size: 0.83rem; color: var(--ms-text); padding-left: 18px; line-height: 1.8;">
-                <li>Rename this downloaded file to <strong><code>index.html</code></strong>.</li>
-                <li>Create a public GitHub repository (e.g., <code>cablesource</code>) and upload <code>index.html</code>.</li>
-                <li>Go to <strong>Settings → Pages → Build and deployment</strong>, select <strong>Deploy from a branch</strong> (<code>main</code> / <code>root</code>), and click <strong>Save</strong>.</li>
-                <li>Open your live GitHub Pages URL (<code>https://&lt;username&gt;.github.io/cablesource/</code>).</li>
-                <li>Verify the top-right status badge turns green (<strong>Google Sheets Live Synced</strong>) and click <strong>Open Google Sheet ↗</strong> to inspect live records during your presentation.</li>
-              </ol>
             </div>
           </div>
         </section>
@@ -1219,15 +896,64 @@
     </main>
   </div>
 
+  <!-- Modal: Add Supplier -->
+  <div class="ms-modal-backdrop" id="addSupplierModal" onclick="if(event.target===this) closeAddSupplierModal()">
+    <div class="ms-modal">
+      <div class="section-title">
+        <span>Add Supplier</span>
+        <button class="btn btn-subtle" onclick="closeAddSupplierModal()">✕</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Name</label><input type="text" id="newSupName" /></div>
+        <div class="form-group"><label>Country</label><input type="text" id="newSupCountry" /></div>
+        <div class="form-group">
+          <label>Material</label>
+          <select id="newSupMat">
+            <option value="Copper Rod">Copper Rod</option>
+            <option value="XLPE Compound">XLPE Compound</option>
+            <option value="Aluminium Rod">Aluminium Rod</option>
+            <option value="Optical Preform">Optical Preform</option>
+            <option value="PVC Compound">PVC Compound</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Price (₹/MT)</label><input type="number" id="newSupPrice" /></div>
+        <div class="form-group"><label>Capacity (MT/Mo)</label><input type="number" id="newSupCap" /></div>
+        <div class="form-group"><label>Lead Time (Days)</label><input type="number" id="newSupLead" /></div>
+        <div class="form-group" style="grid-column: 1 / -1;"><label>Certifications</label><input type="text" id="newSupCert" /></div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn btn-outline" onclick="closeAddSupplierModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="addSupplier()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Google Sheets Connector -->
+  <div class="ms-modal-backdrop" id="settingsModal" onclick="if(event.target===this) closeSettingsModal()">
+    <div class="ms-modal">
+      <div class="section-title">
+        <span>Google Sheets Connector</span>
+        <button class="btn btn-subtle" onclick="closeSettingsModal()">✕</button>
+      </div>
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label>Apps Script URL (/exec)</label>
+        <input type="url" id="gasEndpointInput" value="https://script.google.com/macros/s/AKfycbysisf1NNvyGV418LwrfoqFZUEhv5NdP5mvSiXEbbYj92XMWZGE3xSAdFE6E5sv4p4FBw/exec" />
+      </div>
+      <div id="gasConnectionStatus" style="margin-bottom: 10px; font-size: 0.8rem;"></div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn btn-outline" onclick="resetDefaultGasUrl()">Default</button>
+        <button class="btn btn-primary" onclick="saveGasUrl()">Test &amp; Sync</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // ==================== EMBEDDED GOOGLE APPS SCRIPT ENDPOINT ====================
     const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbysisf1NNvyGV418LwrfoqFZUEhv5NdP5mvSiXEbbYj92XMWZGE3xSAdFE6E5sv4p4FBw/exec";
 
     function getActiveGasUrl() {
       return localStorage.getItem('cablesource_gas_url') || DEFAULT_GAS_URL;
     }
 
-    // ==================== BIC CARRIER PREFIX DICTIONARY ====================
     const CARRIER_PREFIXES = {
       'COSU': 'COSCO Shipping', 'CSNU': 'COSCO Shipping', 'CBHU': 'COSCO Shipping',
       'MSCU': 'MSC', 'MEDU': 'MSC',
@@ -1239,7 +965,6 @@
       'HLCU': 'Hapag-Lloyd'
     };
 
-    // ==================== MATERIAL PRESETS (ILLUSTRATIVE) ====================
     const MATERIAL_PRESETS = {
       copper: {
         name: '8mm ETP Copper Wire Rod',
@@ -1268,17 +993,16 @@
       }
     };
 
-    // ==================== FALLBACK ILLUSTRATIVE DATA ====================
     let suppliersData = [
-      { name: 'Hindalco Industries (Birla Copper)', country: 'India', origin: 'India', material: 'Copper Rod', price: 836300, capacity: 4500, lead: 4, certs: 'BIS IS 12444, ISO 9001, LME Grade A', status: 'Qualified Tier-1' },
+      { name: 'Hindalco Industries (Birla Copper)', country: 'India', origin: 'India', material: 'Copper Rod', price: 836300, capacity: 4500, lead: 4, certs: 'BIS IS 12444, ISO 9001', status: 'Qualified Tier-1' },
       { name: 'Vedanta Sterlite Copper', country: 'India', origin: 'India', material: 'Copper Rod', price: 838500, capacity: 3800, lead: 5, certs: 'BIS IS 12444, ISO 14001', status: 'Qualified Tier-1' },
       { name: 'Ducab Metals / Emirates Global', country: 'UAE', origin: 'Import', material: 'Copper Rod', price: 866400, capacity: 6000, lead: 28, certs: 'ASTM B49, IEC 60228', status: 'Active Import' },
-      { name: 'Borealis AG (Borlink)', country: 'Austria / UAE', origin: 'Import', material: 'XLPE Compound', price: 221000, capacity: 3000, lead: 42, certs: 'IEC 60502, CIGRE EHV Certified', status: 'Primary EHV Import' },
+      { name: 'Borealis AG (Borlink)', country: 'Austria / UAE', origin: 'Import', material: 'XLPE Compound', price: 221000, capacity: 3000, lead: 42, certs: 'IEC 60502, CIGRE EHV', status: 'Primary EHV Import' },
       { name: 'Dow Chemical (Wire & Cable)', country: 'USA / Singapore', origin: 'Import', material: 'XLPE Compound', price: 224500, capacity: 3500, lead: 45, certs: 'IEC 60840, UL 1072', status: 'Active Import' },
-      { name: 'Shakun Polymers Ltd', country: 'India', origin: 'India', material: 'XLPE Compound', price: 207750, capacity: 1200, lead: 6, certs: 'BIS IS 7098, ISO 9001 (Up to 33kV)', status: 'Qualified MV/LT' },
+      { name: 'Shakun Polymers Ltd', country: 'India', origin: 'India', material: 'XLPE Compound', price: 207750, capacity: 1200, lead: 6, certs: 'BIS IS 7098 (Up to 33kV)', status: 'Qualified MV/LT' },
       { name: 'KLJ Polymers & Chemicals', country: 'India', origin: 'India', material: 'PVC Compound', price: 117100, capacity: 2800, lead: 5, certs: 'BIS IS 5831, RoHS, FRLS', status: 'Qualified Tier-1' },
       { name: 'NALCO (National Aluminium Co.)', country: 'India', origin: 'India', material: 'Aluminium Rod', price: 245250, capacity: 5000, lead: 6, certs: 'BIS IS 5484, ISO 9001', status: 'Qualified Tier-1' },
-      { name: 'Corning / Shin-Etsu Preforms', country: 'Japan / USA', origin: 'Import', material: 'Optical Preform', price: 1480000, capacity: 800, lead: 52, certs: 'ITU-T G.652.D, IEC 60793', status: 'Critical Import Bottleneck' }
+      { name: 'Corning / Shin-Etsu Preforms', country: 'Japan / USA', origin: 'Import', material: 'Optical Preform', price: 1480000, capacity: 800, lead: 52, certs: 'ITU-T G.652.D, IEC 60793', status: 'Import Bottleneck' }
     ];
 
     let containersData = [
@@ -1286,81 +1010,78 @@
         id: 'COSU6326932890', carrier: 'COSCO Shipping', material: 'XLPE HV Compound (40 MT)',
         origin: 'Jebel Ali (AEJEA)', destination: 'Nhava Sheva (INNSA)', vessel: 'COSCO SHIPPING VIRGO',
         voyage: '048W', eta: '2026-11-22', baselineEta: '2026-11-18', status: 'Delayed',
-        source: 'Illustrative Sample (COSCO API Schema)', lastUpdate: '2026-11-13 21:15 IST',
+        lastUpdate: '2026-11-13 21:15 IST',
         events: [
-          { status: 'completed', title: 'Gate-In at Origin Terminal', loc: 'Jebel Ali, UAE', time: '2026-11-02 14:20', desc: 'Full container gated in' },
-          { status: 'completed', title: 'Loaded on Vessel', loc: 'Jebel Ali, UAE', time: '2026-11-04 09:45', desc: 'Loaded onto COSCO SHIPPING VIRGO' },
-          { status: 'alert', title: 'Transshipment Berth Delay (+4 Days)', loc: 'Colombo / Singapore Hub', time: '2026-11-13 18:10', desc: 'Feeder connection rolled over due to terminal congestion' },
-          { status: 'pending', title: 'Estimated Arrival at Destination', loc: 'Nhava Sheva (INNSA)', time: '2026-11-22 (Est.)', desc: 'Subject to berth window availability' }
+          { status: 'completed', title: 'Gate-In at Origin', loc: 'Jebel Ali, UAE', time: '2026-11-02 14:20', desc: 'Container gated in' },
+          { status: 'completed', title: 'Loaded on Vessel', loc: 'Jebel Ali, UAE', time: '2026-11-04 09:45', desc: 'Loaded on COSCO SHIPPING VIRGO' },
+          { status: 'alert', title: 'Transshipment Delay (+4d)', loc: 'Singapore Hub', time: '2026-11-13 18:10', desc: 'Terminal congestion rollover' },
+          { status: 'pending', title: 'Estimated Arrival', loc: 'Nhava Sheva (INNSA)', time: '2026-11-22 (Est.)', desc: 'Awaiting berth' }
         ]
       },
       {
         id: 'MAEU9182734', carrier: 'Maersk Line', material: '8mm ETP Copper Rod (50 MT)',
         origin: 'Sohar (OMSOH)', destination: 'Mundra (INMUN)', vessel: 'MAERSK KARACHI',
         voyage: '645E', eta: '2026-11-16', baselineEta: '2026-11-16', status: 'In Transit',
-        source: 'Illustrative Sample (DCSA Schema)', lastUpdate: '2026-11-13 22:00 IST',
+        lastUpdate: '2026-11-13 22:00 IST',
         events: [
-          { status: 'completed', title: 'Loaded on Vessel', loc: 'Sohar Port, Oman', time: '2026-11-11 16:00', desc: 'Container secured on board' },
-          { status: 'completed', title: 'Vessel Departed', loc: 'Sohar Port, Oman', time: '2026-11-11 23:30', desc: 'En route across Arabian Sea' },
-          { status: 'pending', title: 'Estimated Discharge', loc: 'Mundra Port (INMUN)', time: '2026-11-16 (Est.)', desc: 'On schedule' }
+          { status: 'completed', title: 'Departed Origin', loc: 'Sohar, Oman', time: '2026-11-11 23:30', desc: 'En route across Arabian Sea' },
+          { status: 'pending', title: 'Estimated Discharge', loc: 'Mundra (INMUN)', time: '2026-11-16 (Est.)', desc: 'On schedule' }
         ]
       },
       {
-        id: 'MSCU8841209', carrier: 'MSC', material: 'Optical Silica Preforms (12 MT)',
+        id: 'MSCU8841209', carrier: 'MSC', material: 'Optical Preforms (12 MT)',
         origin: 'Yokohama (JPYOK)', destination: 'Chennai (INMAA)', vessel: 'MSC ANNA',
         voyage: 'FY642R', eta: '2026-11-26', baselineEta: '2026-11-24', status: 'Delayed',
-        source: 'Illustrative Sample (SeaRates Schema)', lastUpdate: '2026-11-13 19:40 IST',
+        lastUpdate: '2026-11-13 19:40 IST',
         events: [
-          { status: 'completed', title: 'Loaded on Vessel', loc: 'Yokohama, Japan', time: '2026-11-05 11:15', desc: 'Export customs cleared' },
-          { status: 'alert', title: 'Schedule Adjustment (+2 Days)', loc: 'Singapore Strait', time: '2026-11-13 14:00', desc: 'Slow steaming due to weather routing' },
-          { status: 'pending', title: 'Estimated Arrival', loc: 'Chennai Port (INMAA)', time: '2026-11-26 (Est.)', desc: 'Awaiting discharge' }
+          { status: 'completed', title: 'Loaded on Vessel', loc: 'Yokohama, Japan', time: '2026-11-05 11:15', desc: 'Export cleared' },
+          { status: 'alert', title: 'Schedule Delay (+2d)', loc: 'Singapore Strait', time: '2026-11-13 14:00', desc: 'Weather routing' },
+          { status: 'pending', title: 'Estimated Arrival', loc: 'Chennai (INMAA)', time: '2026-11-26 (Est.)', desc: 'Awaiting discharge' }
         ]
       },
       {
         id: 'ONEU7731204', carrier: 'ONE (Ocean Network Express)', material: 'Fluoropolymer PTFE (18 MT)',
         origin: 'Busan (KRPUS)', destination: 'Nhava Sheva (INNSA)', vessel: 'ONE COMPETENCE',
         voyage: '089W', eta: '2026-11-14', baselineEta: '2026-11-14', status: 'Discharged',
-        source: 'Illustrative Sample (Tracking One Schema)', lastUpdate: '2026-11-13 20:05 IST',
+        lastUpdate: '2026-11-13 20:05 IST',
         events: [
-          { status: 'completed', title: 'Vessel Arrived', loc: 'Nhava Sheva (INNSA)', time: '2026-11-13 06:30', desc: 'Berthed at GTI Terminal' },
-          { status: 'completed', title: 'Container Discharged', loc: 'Nhava Sheva (INNSA)', time: '2026-11-13 15:20', desc: 'Last Free Day (LFD): Nov 17 — Demurrage clock active' }
+          { status: 'completed', title: 'Discharged at Port', loc: 'Nhava Sheva (INNSA)', time: '2026-11-13 15:20', desc: 'Last Free Day: Nov 17' }
         ]
       },
       {
-        id: 'CMAU5509182', carrier: 'CMA CGM', material: 'Semi-Conductive Shield Compound (22 MT)',
+        id: 'CMAU5509182', carrier: 'CMA CGM', material: 'Shield Compound (22 MT)',
         origin: 'Antwerp (BEANR)', destination: 'Mundra (INMUN)', vessel: 'CMA CGM MAGELLAN',
         voyage: '0MX82E', eta: '2026-11-29', baselineEta: '2026-11-29', status: 'In Transit',
-        source: 'Illustrative Sample (DCSA Schema)', lastUpdate: '2026-11-13 17:50 IST',
+        lastUpdate: '2026-11-13 17:50 IST',
         events: [
           { status: 'completed', title: 'Vessel Departed', loc: 'Antwerp, Belgium', time: '2026-11-08 04:10', desc: 'Sailing via Cape route' },
           { status: 'pending', title: 'Estimated Arrival', loc: 'Mundra (INMUN)', time: '2026-11-29 (Est.)', desc: 'In transit' }
         ]
       },
       {
-        id: 'WHLU3301948', carrier: 'Wan Hai Lines', material: 'Galvanized Armouring Tape (25 MT)',
+        id: 'WHLU3301948', carrier: 'Wan Hai Lines', material: 'Armouring Tape (25 MT)',
         origin: 'Kaohsiung (TWKHH)', destination: 'Chennai (INMAA)', vessel: 'WAN HAI 512',
         voyage: 'W104', eta: '2026-11-19', baselineEta: '2026-11-19', status: 'In Transit',
-        source: 'Illustrative Sample (SeaRates Schema)', lastUpdate: '2026-11-13 21:00 IST',
+        lastUpdate: '2026-11-13 21:00 IST',
         events: [
-          { status: 'completed', title: 'Loaded on Vessel', loc: 'Kaohsiung, Taiwan', time: '2026-11-09 18:00', desc: 'Sailed on schedule' },
+          { status: 'completed', title: 'Loaded on Vessel', loc: 'Kaohsiung, Taiwan', time: '2026-11-09 18:00', desc: 'On schedule' },
           { status: 'pending', title: 'Estimated Arrival', loc: 'Chennai (INMAA)', time: '2026-11-19 (Est.)', desc: 'On schedule' }
         ]
       }
     ];
 
     let savedCostLogs = [
-      { material: '8mm ETP Copper Wire Rod', qty: 100, dom: 836300, imp: 866402, diff: 30102, savings: 3010200, choice: 'Make-in-India (100%)' },
-      { material: 'XLPE HV Insulating Compound', qty: 50, dom: 207750, imp: 219505, diff: 11755, savings: 587750, choice: 'Hybrid (60% India / 40% Import)' }
+      { material: '8mm ETP Copper Wire Rod', qty: 100, dom: 836300, imp: 866402, diff: 30102, savings: 3010200, choice: 'Make-in-India' },
+      { material: 'XLPE HV Insulating Compound', qty: 50, dom: 207750, imp: 219505, diff: 11755, savings: 587750, choice: 'Hybrid (60/40)' }
     ];
 
-    // ==================== NAVIGATION ====================
+    // Navigation & Modals
     const PAGE_TITLES = {
-      dashboard: ['Executive Sourcing Summary', 'Reliance on Imports vs. Make-in-India Decision Support for Indian Cable Manufacturers'],
-      calculator: ['Import vs. Domestic Landed-Cost Calculator', 'Compare Total Cost of Ownership (FOB, Freight, Customs Duty, Port & Working Capital)'],
-      suppliers: ['Domestic & International Supplier Intelligence', 'Evaluate Indian & Global Vendors by Capacity, BIS/IEC Certification, Lead Time & Cost'],
-      recommendations: ['Import Dependency & Domestic Substitution Engine', 'Algorithmic Make-in-India vs. Import Allocation Model'],
-      tracking: ['Multi-Carrier Container Tracking Hub', 'Unified Visibility Across COSCO, MSC, Maersk, CMA CGM, ONE, Evergreen & Wan Hai'],
-      backend: ['Google Sheets & Apps Script Connector', 'Live Two-Way Synchronization with CableSource Database']
+      home: 'CableSource Portal',
+      calculator: 'Landed-Cost Calculator',
+      suppliers: 'Supplier Intelligence',
+      recommendations: 'Substitution Engine',
+      tracking: 'Container Tracking'
     };
 
     function switchTab(tabId, btnEl) {
@@ -1370,61 +1091,18 @@
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       if (btnEl) btnEl.classList.add('active');
 
-      document.getElementById('pageTitle').textContent = PAGE_TITLES[tabId][0];
-      document.getElementById('pageSubtitle').textContent = PAGE_TITLES[tabId][1];
+      document.getElementById('pageTitle').textContent = PAGE_TITLES[tabId];
+      document.getElementById('backHomeBtn').style.display = tabId === 'home' ? 'none' : 'inline-flex';
 
-      if (tabId === 'dashboard') renderDashboardCharts();
       if (tabId === 'calculator') calculateLandedCost();
     }
 
-    // ==================== DASHBOARD CHARTS (FLUENT LIGHT THEME) ====================
-    function renderDashboardCharts() {
-      const fluentLayout = {
-        paper_bgcolor: '#ffffff',
-        plot_bgcolor: '#ffffff',
-        font: { family: 'Segoe UI, sans-serif', color: '#323130', size: 12 },
-        margin: { t: 18, r: 18, b: 48, l: 52 },
-        xaxis: { gridcolor: '#f3f2f1', linecolor: '#c8c6c4' },
-        yaxis: { gridcolor: '#edebe9', linecolor: '#c8c6c4' },
-        legend: { orientation: 'h', y: -0.22 }
-      };
+    function openAddSupplierModal() { document.getElementById('addSupplierModal').classList.add('open'); }
+    function closeAddSupplierModal() { document.getElementById('addSupplierModal').classList.remove('open'); }
+    function openSettingsModal() { document.getElementById('settingsModal').classList.add('open'); }
+    function closeSettingsModal() { document.getElementById('settingsModal').classList.remove('open'); }
 
-      Plotly.newPlot('dependencyChart', [
-        {
-          x: ['Copper Rod', 'Alum. Rod', 'PVC Comp.', 'Steel Tape', 'XLPE (HV)', 'Opt. Preforms'],
-          y: [18, 12, 15, 22, 68, 92],
-          name: 'Import Reliance (%)',
-          type: 'bar',
-          marker: { color: '#0078d4' }
-        },
-        {
-          x: ['Copper Rod', 'Alum. Rod', 'PVC Comp.', 'Steel Tape', 'XLPE (HV)', 'Opt. Preforms'],
-          y: [82, 88, 85, 78, 32, 8],
-          name: 'Make-in-India Share (%)',
-          type: 'bar',
-          marker: { color: '#107c41' }
-        }
-      ], { ...fluentLayout, barmode: 'stack' }, { responsive: true, displayModeBar: false });
-
-      Plotly.newPlot('costComparisonChart', [
-        {
-          x: ['Copper Rod', 'Alum. Rod', 'XLPE Compound', 'FRLS PVC', 'Steel Tape'],
-          y: [866.4, 258.2, 219.5, 134.8, 96.4],
-          name: 'Import Landed (₹k/MT)',
-          type: 'bar',
-          marker: { color: '#d83b01' }
-        },
-        {
-          x: ['Copper Rod', 'Alum. Rod', 'XLPE Compound', 'FRLS PVC', 'Steel Tape'],
-          y: [836.3, 245.3, 207.8, 117.1, 82.4],
-          name: 'Domestic Landed (₹k/MT)',
-          type: 'bar',
-          marker: { color: '#107c41' }
-        }
-      ], { ...fluentLayout, barmode: 'group' }, { responsive: true, displayModeBar: false });
-    }
-
-    // ==================== LANDED COST CALCULATOR ====================
+    // Landed Cost Calculator (One-Liner Result)
     function loadMaterialPreset() {
       const key = document.getElementById('calcMaterial').value;
       const p = MATERIAL_PRESETS[key];
@@ -1461,41 +1139,27 @@
       const diffPerMt = totalImpPerMt - totalDomPerMt;
       const totalBatchDiff = Math.abs(diffPerMt) * qty;
 
-      document.getElementById('resImpPerMt').textContent = '₹' + Math.round(totalImpPerMt).toLocaleString('en-IN');
-      document.getElementById('resImpTotal').textContent = 'Batch (' + qty + ' MT): ₹' + Math.round(totalImpPerMt * qty).toLocaleString('en-IN');
-
-      document.getElementById('resDomPerMt').textContent = '₹' + Math.round(totalDomPerMt).toLocaleString('en-IN');
-      document.getElementById('resDomTotal').textContent = 'Batch (' + qty + ' MT): ₹' + Math.round(totalDomPerMt * qty).toLocaleString('en-IN');
-
       const verdictEl = document.getElementById('calcVerdictBanner');
       if (diffPerMt > 0) {
-        verdictEl.className = 'verdict-card success';
-        verdictEl.innerHTML = `
-          <div style="font-weight: 700; color: var(--ms-green); font-size: 0.92rem;">✓ Make-in-India Advantage: Save ₹${Math.round(diffPerMt).toLocaleString('en-IN')} / MT</div>
-          <div style="font-size: 0.82rem; color: var(--ms-text); margin-top: 4px;">
-            Sourcing domestically saves <strong>₹${Math.round(totalBatchDiff).toLocaleString('en-IN')}</strong> on this ${qty} MT order while eliminating customs clearance &amp; ocean transit delays.
-          </div>`;
+        verdictEl.className = 'one-liner-result green';
+        verdictEl.textContent = `Make-in-India saves ₹${Math.round(diffPerMt).toLocaleString('en-IN')}/MT (₹${Math.round(totalBatchDiff).toLocaleString('en-IN')} for ${qty} MT) — Domestic ₹${Math.round(totalDomPerMt).toLocaleString('en-IN')} vs Import ₹${Math.round(totalImpPerMt).toLocaleString('en-IN')}/MT.`;
       } else {
-        verdictEl.className = 'verdict-card';
-        verdictEl.innerHTML = `
-          <div style="font-weight: 700; color: var(--ms-amber); font-size: 0.92rem;">⚠ Import Price Advantage: ₹${Math.round(Math.abs(diffPerMt)).toLocaleString('en-IN')} / MT Cheaper</div>
-          <div style="font-size: 0.82rem; color: var(--ms-text); margin-top: 4px;">
-            Importing saves <strong>₹${Math.round(totalBatchDiff).toLocaleString('en-IN')}</strong>, but exposes production to 35–50 day transit lead times and forex volatility. Consider a Hybrid split.
-          </div>`;
+        verdictEl.className = 'one-liner-result amber';
+        verdictEl.textContent = `Import is ₹${Math.round(Math.abs(diffPerMt)).toLocaleString('en-IN')}/MT cheaper (₹${Math.round(totalBatchDiff).toLocaleString('en-IN')} for ${qty} MT), but carries 35–50d transit & forex risk — Import ₹${Math.round(totalImpPerMt).toLocaleString('en-IN')} vs Domestic ₹${Math.round(totalDomPerMt).toLocaleString('en-IN')}/MT.`;
       }
 
       Plotly.newPlot('calcWaterfallChart', [
         {
-          x: ['Base / CIF Material', 'Customs Duty & Port', 'Freight & Logistics', 'Working Cap. Holding'],
+          x: ['Base / CIF', 'Duty & Port', 'Freight', 'Holding'],
           y: [Math.round(fobUsd * fx), Math.round(dutyInr + portInr), Math.round(freightUsd * fx), Math.round(impHoldInr)],
-          name: 'Import Breakdown (₹/MT)',
+          name: 'Import (₹/MT)',
           type: 'bar',
           marker: { color: '#0078d4' }
         },
         {
-          x: ['Base / CIF Material', 'Customs Duty & Port', 'Freight & Logistics', 'Working Cap. Holding'],
+          x: ['Base / CIF', 'Duty & Port', 'Freight', 'Holding'],
           y: [Math.round(domBase), 0, Math.round(domFreight), Math.round(domHold)],
-          name: 'Domestic Breakdown (₹/MT)',
+          name: 'Domestic (₹/MT)',
           type: 'bar',
           marker: { color: '#107c41' }
         }
@@ -1503,10 +1167,10 @@
         paper_bgcolor: '#ffffff',
         plot_bgcolor: '#ffffff',
         font: { family: 'Segoe UI, sans-serif', color: '#323130', size: 11 },
-        margin: { t: 14, r: 14, b: 44, l: 55 },
+        margin: { t: 10, r: 10, b: 38, l: 52 },
         xaxis: { gridcolor: '#f3f2f1', linecolor: '#c8c6c4' },
         yaxis: { gridcolor: '#edebe9', linecolor: '#c8c6c4' },
-        legend: { orientation: 'h', y: -0.25 },
+        legend: { orientation: 'h', y: -0.22 },
         barmode: 'group'
       }, { responsive: true, displayModeBar: false });
 
@@ -1558,7 +1222,7 @@
       `).join('');
     }
 
-    // ==================== SUPPLIER INTELLIGENCE ====================
+    // Suppliers
     function renderSuppliers() {
       const matFilter = document.getElementById('supFilterMaterial').value;
       const orgFilter = document.getElementById('supFilterOrigin').value;
@@ -1577,19 +1241,20 @@
         return 0;
       });
 
-      const tbody = document.getElementById('supplierTableBody');
-      tbody.innerHTML = filtered.map(s => `
+      document.getElementById('supplierTableBody').innerHTML = filtered.map(s => `
         <tr>
           <td><strong>${s.name}</strong></td>
           <td><span class="badge ${s.origin === 'India' ? 'badge-green' : 'badge-blue'}">${s.country}</span></td>
           <td>${s.material}</td>
           <td>₹${s.price.toLocaleString('en-IN')}</td>
           <td>${s.capacity.toLocaleString('en-IN')} MT</td>
-          <td>${s.lead} Days</td>
+          <td>${s.lead}d</td>
           <td style="font-size: 0.78rem; color: var(--ms-text-secondary);">${s.certs}</td>
           <td><span class="badge ${s.origin === 'India' ? 'badge-green' : 'badge-amber'}">${s.status}</span></td>
         </tr>
       `).join('');
+
+      document.getElementById('homeSupplierCount').textContent = `${suppliersData.length} Domestic & Global Suppliers`;
     }
 
     function addSupplier() {
@@ -1602,32 +1267,28 @@
       const certs = document.getElementById('newSupCert').value.trim() || 'ISO 9001';
 
       if (!name || !country || !price || !capacity || !lead) {
-        alert('Please fill in Supplier Name, Country, Price, Capacity, and Lead Time.');
+        alert('Please fill in all required supplier fields.');
         return;
       }
 
       const isIndia = country.toLowerCase().includes('india');
       suppliersData.unshift({
         name, country, origin: isIndia ? 'India' : 'Import', material, price, capacity, lead, certs,
-        status: isIndia ? 'New Domestic Vendor' : 'New Import Vendor'
+        status: isIndia ? 'Domestic Vendor' : 'Import Vendor'
       });
 
-      document.getElementById('newSupName').value = '';
-      document.getElementById('newSupCountry').value = '';
-      document.getElementById('newSupPrice').value = '';
-      document.getElementById('newSupCap').value = '';
-      document.getElementById('newSupLead').value = '';
-      document.getElementById('newSupCert').value = '';
+      ['newSupName','newSupCountry','newSupPrice','newSupCap','newSupLead','newSupCert'].forEach(id => document.getElementById(id).value = '');
+      closeAddSupplierModal();
       renderSuppliers();
       postToGas({
         action: 'addSupplier',
         name, country, origin: isIndia ? 'India' : 'Import',
         material, price, capacity, lead, certs,
-        status: isIndia ? 'New Domestic Vendor' : 'New Import Vendor'
+        status: isIndia ? 'Domestic Vendor' : 'Import Vendor'
       });
     }
 
-    // ==================== SUBSTITUTION ENGINE ====================
+    // Substitution Engine (One-Liner Result)
     function runSubstitutionEngine() {
       const material = document.getElementById('recMaterial').value;
       const vol = parseFloat(document.getElementById('recVolume').value) || 100;
@@ -1636,33 +1297,26 @@
 
       const domSuppliers = suppliersData.filter(s => s.material === material && s.origin === 'India');
 
-      let domShare = 0;
-      let rationale = '';
-      let strategyLabel = '';
+      let domShare = 80;
+      let oneLiner = '';
 
       if (material === 'Optical Preform') {
         domShare = 10;
-        strategyLabel = 'Import-Dominant (Critical Upstream Bottleneck)';
-        rationale = 'India lacks commercial-scale high-purity silica optical preform synthesis capacity. Recommend 90% multi-year off-take from Japanese/US Tier-1 suppliers while allocating 10% pilot qualification under PLI/Make-in-India vendor incubation.';
+        oneLiner = `90% Import / 10% Pilot Domestic — India lacks commercial silica preform capacity; lock Tier-1 imports with 10% PLI incubation.`;
       } else if (material === 'XLPE Compound' && grade === 'ehv') {
         domShare = 25;
-        strategyLabel = 'Hybrid Transition (75% Import / 25% Domestic Co-Dev)';
-        rationale = 'For Extra High Voltage (132kV+) cables, domestic compounders lack long-term CIGRE pre-qualification. Retain Borealis/Dow for core EHV insulation (75%) while shifting conductor shield & MV layers (25%) to qualified Indian compounders.';
+        oneLiner = `75% Import / 25% Domestic — Retain CIGRE-certified imports for 132kV+ core insulation while shifting shield layers locally.`;
       } else if (domSuppliers.length > 0) {
-        const totalDomCap = domSuppliers.reduce((acc, s) => acc + s.capacity, 0);
         if (priority === 'mii') {
           domShare = 95;
-          strategyLabel = 'Full Make-in-India Localization';
-          rationale = `Verified Indian suppliers (${domSuppliers.map(s => s.name).join(', ')}) hold ${totalDomCap.toLocaleString('en-IN')} MT/month capacity with BIS certification and 4–6 day lead times, saving ~₹11,000–₹30,000/MT over landed imports.`;
+          oneLiner = `95% Make-in-India (${domSuppliers.map(s => s.name).join(', ')}) — BIS-certified domestic supply cuts lead time to ${domSuppliers[0].lead}d and maximizes PLI compliance.`;
         } else {
           domShare = 80;
-          strategyLabel = 'Domestic-First Dual Sourcing (80% India / 20% Import)';
-          rationale = `Indian producers offer lower landed cost and 85% shorter lead times (${domSuppliers[0].lead} days vs 35+ days import). Maintain a 20% international benchmark allocation to preserve price leverage and LME/index hedging.`;
+          oneLiner = `80% Make-in-India / 20% Import — Lower domestic landed cost & ${domSuppliers[0].lead}d lead time with a 20% import price benchmark.`;
         }
       } else {
         domShare = 40;
-        strategyLabel = 'Hybrid Substitution (40% Domestic / 60% Import)';
-        rationale = 'Moderate domestic capacity available. Split orders to reduce port demurrage exposure while qualifying secondary Indian manufacturers.';
+        oneLiner = `40% Domestic / 60% Import — Hybrid split while qualifying secondary Indian manufacturers.`;
       }
 
       const impShare = 100 - domShare;
@@ -1670,49 +1324,30 @@
       const impMt = vol - domMt;
 
       document.getElementById('recOutputArea').innerHTML = `
-        <div class="verdict-card success" style="margin-top: 0;">
-          <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--ms-green); letter-spacing: 0.4px;">Recommended Strategy</div>
-          <div style="font-size: 1.15rem; font-weight: 700; margin: 4px 0; color: var(--ms-text);">${strategyLabel}</div>
-
-          <div class="split-bar">
-            <div class="split-domestic" style="width: ${domShare}%;"></div>
-            <div class="split-import" style="width: ${impShare}%;"></div>
-          </div>
-
-          <div style="display: flex; justify-content: space-between; font-size: 0.84rem; font-weight: 700; margin-bottom: 12px;">
-            <span style="color: var(--ms-green);">Make-in-India: ${domShare}% (${domMt} MT)</span>
-            <span style="color: var(--ms-blue);">Import Allocation: ${impShare}% (${impMt} MT)</span>
-          </div>
-
-          <p style="font-size: 0.84rem; line-height: 1.55; color: var(--ms-text); margin-bottom: 12px;">
-            ${rationale}
-          </p>
-
-          <div style="background: #ffffff; border: 1px solid var(--ms-border); padding: 10px 12px; border-radius: 2px; font-size: 0.8rem; color: var(--ms-text-secondary);">
-            <strong>Matched Domestic Vendors:</strong> ${domSuppliers.length ? domSuppliers.map(s => `${s.name} (${s.lead}d lead)`).join(' • ') : 'Requires Tier-2 Vendor Incubation Program'}
-          </div>
+        <div class="one-liner-result ${domShare >= 50 ? 'green' : 'amber'}">${oneLiner}</div>
+        <div class="split-bar">
+          <div class="split-domestic" style="width: ${domShare}%;"></div>
+          <div class="split-import" style="width: ${impShare}%;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.84rem; font-weight: 700;">
+          <span style="color: var(--ms-green);">Make-in-India: ${domShare}% (${domMt} MT)</span>
+          <span style="color: var(--ms-blue);">Import: ${impShare}% (${impMt} MT)</span>
         </div>
       `;
     }
 
-    // ==================== MULTI-CARRIER TRACKING ====================
-    let activeContainerIdsFilter = null; // null = show all; Set = show only searched ID(s)
+    // Container Tracking
+    let activeContainerIdsFilter = null;
 
     function detectCarrier(code) {
       const clean = code.trim().toUpperCase();
       if (clean.length < 4) return null;
-      const prefix = clean.substring(0, 4);
-      return CARRIER_PREFIXES[prefix] || 'Other / Multi-Carrier API Lookup';
+      return CARRIER_PREFIXES[clean.substring(0, 4)] || 'Multi-Carrier API';
     }
 
     function previewCarrierDetect() {
       const val = document.getElementById('singleContainerInput').value;
-      const hint = document.getElementById('carrierDetectHint');
-      if (val.trim().length >= 4) {
-        hint.textContent = 'Detected Shipping Line: ' + detectCarrier(val);
-      } else {
-        hint.textContent = '';
-      }
+      document.getElementById('carrierDetectHint').textContent = val.trim().length >= 4 ? `Carrier: ${detectCarrier(val)}` : '';
     }
 
     function clearContainerSearchFilter() {
@@ -1725,7 +1360,7 @@
     function addSingleContainer() {
       const raw = document.getElementById('singleContainerInput').value.trim().toUpperCase();
       if (!raw || raw.length < 7) {
-        alert('Please enter a valid Container Number (e.g., COSU6326932890) or Bill of Lading.');
+        alert('Enter a valid Container Number or Bill of Lading.');
         return;
       }
       insertContainerRecord(raw);
@@ -1735,14 +1370,13 @@
       showTimeline(raw);
       document.getElementById('singleContainerInput').value = '';
       document.getElementById('carrierDetectHint').textContent = '';
-      document.getElementById('trackingTableTitle').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function addBulkContainers() {
       const raw = document.getElementById('bulkContainerInput').value;
       const items = raw.split(/[\s,;]+/).map(s => s.trim().toUpperCase()).filter(s => s.length >= 7);
       if (!items.length) {
-        alert('Enter one or more container numbers separated by commas or new lines.');
+        alert('Enter container numbers separated by commas.');
         return;
       }
       items.forEach(code => insertContainerRecord(code));
@@ -1757,17 +1391,16 @@
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function(e) {
-        const text = e.target.result;
-        const tokens = text.split(/[\r\n,;]+/).map(t => t.trim().toUpperCase()).filter(t => /^[A-Z]{4}\d{6,10}$/.test(t));
+        const tokens = e.target.result.split(/[
+,;]+/).map(t => t.trim().toUpperCase()).filter(t => /^[A-Z]{4}\d{6,10}$/.test(t));
         if (!tokens.length) {
-          alert('No valid ISO container numbers (4 letters + 7-10 digits) found in CSV.');
+          alert('No valid ISO container numbers found in CSV.');
           return;
         }
         tokens.forEach(code => insertContainerRecord(code));
         activeContainerIdsFilter = new Set(tokens);
         document.getElementById('trackFilterStatus').value = 'ALL';
         renderContainers();
-        alert(`Showing ${tokens.length} imported containers from CSV.`);
       };
       reader.readAsText(file);
     }
@@ -1780,23 +1413,22 @@
       containersData.unshift({
         id: code,
         carrier: carrier,
-        material: 'Cable Raw Material (Pending Manifest)',
-        origin: 'Origin Port (API Query)',
+        material: 'Cable Raw Material',
+        origin: 'Origin Port',
         destination: 'Nhava Sheva (INNSA)',
-        vessel: 'VESSEL SYNC PENDING',
+        vessel: 'SYNC PENDING',
         voyage: 'TBD',
         eta: '2026-11-28',
         baselineEta: '2026-11-28',
         status: 'In Transit',
-        source: 'Synced to Google Sheets',
         lastUpdate: nowStr,
         events: [
-          { status: 'completed', title: 'Tracking Request Queued', loc: 'CableSource Portal', time: nowStr, desc: `Dispatched to ${carrier} connector` },
-          { status: 'pending', title: 'Awaiting Carrier Milestone Feed', loc: 'Destination INNSA', time: '2026-11-28 (Est.)', desc: 'Stored in CableSource Google Sheet' }
+          { status: 'completed', title: 'Tracking Queued', loc: 'CableSource', time: nowStr, desc: `Dispatched to ${carrier}` },
+          { status: 'pending', title: 'Awaiting Carrier Feed', loc: 'Nhava Sheva (INNSA)', time: '2026-11-28 (Est.)', desc: 'Stored in Google Sheet' }
         ]
       });
 
-      updateDashboardContainerKPIs();
+      updateHomeCounts();
       postToGas({
         action: 'trackContainer',
         containerNumber: code,
@@ -1813,35 +1445,30 @@
       let list = containersData;
       if (activeContainerIdsFilter && activeContainerIdsFilter.size > 0) {
         list = list.filter(c => activeContainerIdsFilter.has(String(c.id).trim().toUpperCase()));
-        const idsLabel = Array.from(activeContainerIdsFilter).join(', ');
-        titleEl.textContent = `Showing Searched Shipment: ${idsLabel}`;
+        titleEl.textContent = `Showing: ${Array.from(activeContainerIdsFilter).join(', ')}`;
         document.getElementById('allContainersCount').textContent = containersData.length;
         showAllBtn.style.display = 'inline-flex';
       } else {
-        titleEl.textContent = 'Active Monitored Shipments (Synced with "Containers" Sheet Tab)';
+        titleEl.textContent = 'Monitored Shipments';
         showAllBtn.style.display = 'none';
       }
 
       list = list.filter(c => filter === 'ALL' || c.status === filter);
 
-      const tbody = document.getElementById('containerTableBody');
-      tbody.innerHTML = list.map(c => {
+      document.getElementById('containerTableBody').innerHTML = list.map(c => {
         const badgeClass = c.status === 'Delayed' ? 'badge-red' : (c.status === 'Discharged' ? 'badge-green' : 'badge-blue');
-        const etaNote = c.eta !== c.baselineEta ? `<div style="font-size:0.72rem; color:var(--ms-red);">Was ${c.baselineEta}</div>` : '';
+        const etaNote = c.eta !== c.baselineEta ? `<div style="font-size:0.7rem;color:var(--ms-red);">Was ${c.baselineEta}</div>` : '';
         return `
           <tr>
             <td><strong>${c.id}</strong></td>
             <td>${c.carrier}</td>
             <td>${c.material}</td>
             <td>${c.origin} → <strong>${c.destination}</strong></td>
-            <td>${c.vessel}<div style="font-size:0.74rem; color:var(--ms-text-secondary);">Voy: ${c.voyage}</div></td>
+            <td>${c.vessel} (${c.voyage})</td>
             <td><strong>${c.eta}</strong>${etaNote}</td>
             <td><span class="badge ${badgeClass}">${c.status}</span></td>
-            <td style="font-size:0.75rem; color:var(--ms-text-secondary);">
-              <div>${c.lastUpdate}</div>
-              <div style="color:var(--ms-text-muted);">${c.source}</div>
-            </td>
-            <td><button class="btn btn-outline" style="padding: 4px 10px; font-size: 0.76rem;" onclick="showTimeline('${c.id}')">Events</button></td>
+            <td style="font-size:0.74rem;color:var(--ms-text-secondary);">${c.lastUpdate}</td>
+            <td><button class="btn btn-outline" style="padding:3px 9px;font-size:0.75rem;" onclick="showTimeline('${c.id}')">Events</button></td>
           </tr>
         `;
       }).join('');
@@ -1852,28 +1479,24 @@
       const c = containersData.find(item => String(item.id).trim().toUpperCase() === cleanId);
       if (!c) return;
       const drawer = document.getElementById('timelineDrawer');
-      document.getElementById('timelineTitle').textContent = `Shipment Timeline: ${c.id} (${c.carrier} — ${c.vessel})`;
+      document.getElementById('timelineTitle').textContent = `${c.id} — ${c.carrier} (${c.vessel})`;
       document.getElementById('timelineEventsList').innerHTML = c.events.map(ev => `
         <div class="timeline-step">
           <div class="timeline-dot ${ev.status}"></div>
           <div>
-            <div style="font-weight: 600; font-size: 0.86rem; color: var(--ms-text);">${ev.title} <span style="font-weight: 400; color: var(--ms-text-secondary); font-size: 0.78rem;">• ${ev.loc}</span></div>
-            <div style="font-size: 0.75rem; color: var(--ms-blue); font-weight: 600; margin: 2px 0;">${ev.time}</div>
-            <div style="font-size: 0.8rem; color: var(--ms-text-secondary);">${ev.desc}</div>
+            <strong>${ev.title}</strong> • ${ev.loc} <span style="color:var(--ms-blue);font-weight:600;">(${ev.time})</span> — <span style="color:var(--ms-text-secondary);">${ev.desc}</span>
           </div>
         </div>
       `).join('');
       drawer.style.display = 'block';
-      drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    function updateDashboardContainerKPIs() {
-      document.getElementById('kpiTotalContainers').textContent = containersData.length;
+    function updateHomeCounts() {
       const delayed = containersData.filter(c => c.status === 'Delayed').length;
-      document.getElementById('kpiDelayedContainers').textContent = `${delayed} Delayed at Transshipment (Alerts Active)`;
+      document.getElementById('homeContainerCount').textContent = `${containersData.length} Shipments (${delayed} Delayed)`;
     }
 
-    // ==================== GOOGLE APPS SCRIPT TWO-WAY SYNC ====================
+    // Google Apps Script Two-Way Sync
     function postToGas(payload) {
       const url = getActiveGasUrl();
       if (!url) return;
@@ -1882,14 +1505,14 @@
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
-      }).catch(err => console.warn('GAS background sync note:', err));
+      }).catch(() => {});
     }
 
     function syncFromGas(url) {
       const statusEl = document.getElementById('gasConnectionStatus');
       const badgeEl = document.getElementById('dataModeBadge');
       const dotEl = document.getElementById('topSyncDot');
-      statusEl.innerHTML = '<span style="color: var(--ms-amber); font-weight: 600;">Syncing with CableSource Database Google Sheet...</span>';
+      statusEl.textContent = 'Syncing...';
 
       fetch(url + '?action=getAll')
         .then(r => r.json())
@@ -1945,7 +1568,6 @@
                 eta: String(c['ETA']).slice(0, 10),
                 baselineEta: String(c['Baseline ETA'] || c['ETA']).slice(0, 10),
                 status: c['Status'],
-                source: c['Source'] || 'Google Sheets Sync',
                 lastUpdate: c['Last Update'],
                 events: matchedEvents.length ? matchedEvents : [
                   { status: 'completed', title: 'Synced from Google Sheets', loc: c['Destination'], time: c['Last Update'], desc: 'Loaded from CableSource Database' }
@@ -1953,38 +1575,31 @@
               };
             }).reverse();
             renderContainers();
-            updateDashboardContainerKPIs();
+            updateHomeCounts();
           }
 
-          const nowText = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
-          document.getElementById('lastSyncTimestamp').textContent = 'Last Sync: Today ' + nowText;
-
+          document.getElementById('lastSyncTimestamp').textContent = 'Synced: ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
           if (data.sheetUrl) {
             const headerLink = document.getElementById('headerSheetLink');
             headerLink.href = data.sheetUrl;
-            headerLink.style.display = 'inline';
+            headerLink.style.display = 'inline-flex';
           }
-
-          const linkHtml = data.sheetUrl ? ` <a href="${data.sheetUrl}" target="_blank" style="color: var(--ms-blue); font-weight: 600; text-decoration: underline; margin-left: 6px;">Open Google Sheet ↗</a>` : '';
-          statusEl.innerHTML = '<span style="color: var(--ms-green); font-weight: 600;">✓ Connected &amp; Synced with CableSource Database!</span>' + linkHtml;
-          badgeEl.textContent = 'Google Sheets Live Synced';
+          statusEl.innerHTML = '<span style="color:var(--ms-green);font-weight:600;">✓ Connected to Google Sheet</span>';
+          badgeEl.textContent = 'Sheets Synced';
           dotEl.classList.add('live');
         })
-        .catch(err => {
-          statusEl.innerHTML = '<span style="color: var(--ms-amber); font-weight: 600;">Endpoint configured. If opening locally via file://, deploy to GitHub Pages (https://) for full GET read sync.</span>';
-          badgeEl.textContent = 'Sheet Endpoint Ready (Illustrative Fallback)';
+        .catch(() => {
+          statusEl.textContent = 'Endpoint ready (host via HTTPS for live GET read).';
+          badgeEl.textContent = 'Endpoint Ready';
         });
     }
 
-    function manualRefreshSheet() {
-      syncFromGas(getActiveGasUrl());
-    }
+    function manualRefreshSheet() { syncFromGas(getActiveGasUrl()); }
 
     function saveGasUrl() {
       const url = document.getElementById('gasEndpointInput').value.trim();
-      const statusEl = document.getElementById('gasConnectionStatus');
       if (!url.startsWith('https://script.google.com/')) {
-        statusEl.innerHTML = '<span style="color: var(--ms-red); font-weight: 600;">Invalid URL. Must start with https://script.google.com/macros/s/...</span>';
+        document.getElementById('gasConnectionStatus').textContent = 'Invalid Apps Script URL.';
         return;
       }
       localStorage.setItem('cablesource_gas_url', url);
@@ -1998,29 +1613,25 @@
     }
 
     function exportSummaryCSV() {
-      let csv = 'Category,Item,Metric1,Metric2,Recommendation\n';
-      savedCostLogs.forEach(r => {
-        csv += `Cost Analysis,"${r.material}",Dom: INR ${r.dom},Imp: INR ${r.imp},"${r.choice}"\n`;
-      });
-      containersData.forEach(c => {
-        csv += `Container Tracking,"${c.id} (${c.carrier})",ETA: ${c.eta},Status: ${c.status},"${c.origin} to ${c.destination}"\n`;
-      });
+      let csv = 'Category,Item,Metric1,Metric2,Decision\n';
+      savedCostLogs.forEach(r => { csv += `Cost,"${r.material}",Dom:${r.dom},Imp:${r.imp},"${r.choice}"
+`; });
+      containersData.forEach(c => { csv += `Container,"${c.id} (${c.carrier})",ETA:${c.eta},Status:${c.status},"${c.origin} to ${c.destination}"
+`; });
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'CableSource_Sourcing_Report.csv';
+      link.download = 'CableSource_Report.csv';
       link.click();
     }
 
-    // ==================== INITIALIZE ON LOAD ====================
     window.addEventListener('DOMContentLoaded', () => {
-      renderDashboardCharts();
       calculateLandedCost();
       renderSavedCostTable();
       renderSuppliers();
       runSubstitutionEngine();
       renderContainers();
-      updateDashboardContainerKPIs();
+      updateHomeCounts();
 
       const activeUrl = getActiveGasUrl();
       document.getElementById('gasEndpointInput').value = activeUrl;
