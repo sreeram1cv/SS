@@ -1391,8 +1391,7 @@
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function(e) {
-        const tokens = e.target.result.split(/[
-,;]+/).map(t => t.trim().toUpperCase()).filter(t => /^[A-Z]{4}\d{6,10}$/.test(t));
+        const tokens = e.target.result.split(/[\r\n,;]+/).map(t => t.trim().toUpperCase()).filter(t => /^[A-Z]{4}\d{6,10}$/.test(t));
         if (!tokens.length) {
           alert('No valid ISO container numbers found in CSV.');
           return;
@@ -1614,10 +1613,8 @@
 
     function exportSummaryCSV() {
       let csv = 'Category,Item,Metric1,Metric2,Decision\n';
-      savedCostLogs.forEach(r => { csv += `Cost,"${r.material}",Dom:${r.dom},Imp:${r.imp},"${r.choice}"
-`; });
-      containersData.forEach(c => { csv += `Container,"${c.id} (${c.carrier})",ETA:${c.eta},Status:${c.status},"${c.origin} to ${c.destination}"
-`; });
+      savedCostLogs.forEach(r => { csv += `Cost,"${r.material}",Dom:${r.dom},Imp:${r.imp},"${r.choice}"\n`; });
+      containersData.forEach(c => { csv += `Container,"${c.id} (${c.carrier})",ETA:${c.eta},Status:${c.status},"${c.origin} to ${c.destination}"\n`; });
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
